@@ -1,18 +1,14 @@
 package main
 
 import (
+	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
 	"github.com/go-atreus/protocol/admin"
+	"github.com/go-atreus/tools/trace"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/registry"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/sdk/trace/tracetest"
-
-	"go.opentelemetry.io/otel/sdk/resource"
-	tracesdk "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.16.0"
 	"os"
 )
 
@@ -53,15 +49,9 @@ func main() {
 		"trace_id", tracing.TraceID(),
 		"span_id", tracing.SpanID(),
 	)
-	exp := tracetest.NewInMemoryExporter()
-	tp := tracesdk.NewTracerProvider(
-		tracesdk.WithBatcher(exp),
-		tracesdk.WithResource(resource.NewSchemaless(
-			semconv.ServiceNameKey.String(Name),
-		)),
-	)
-	otel.SetTracerProvider(tp)
-	app, cleanup, err := initApp(logger, tp)
+	tp := trace.InitTrace(Name)
+	bc := &conf.Bootstrap{Auth: &conf.Auth{Key: "abc"}}
+	app, cleanup, err := initApp(logger, tp, bc, bc.Auth)
 	if err != nil {
 		panic(err)
 	}

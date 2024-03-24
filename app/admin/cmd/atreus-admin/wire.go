@@ -4,6 +4,7 @@
 package main
 
 import (
+	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
 	"github.com/go-atreus/atreus-server/app/admin/internal/data"
 	"github.com/go-atreus/atreus-server/app/admin/internal/server"
 	"github.com/go-kratos/kratos/v2"
@@ -13,6 +14,6 @@ import (
 )
 
 // initApp init application.
-func initApp(log.Logger, *tracesdk.TracerProvider) (*kratos.App, func(), error) {
+func initApp(log.Logger, *tracesdk.TracerProvider, *conf.Bootstrap, *conf.Auth) (*kratos.App, func(), error) {
 	panic(wire.Build(server.ServerProvider, data.ProviderSet, newApp))
 }

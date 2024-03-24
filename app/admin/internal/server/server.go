@@ -5,4 +5,6 @@ import (
 	"github.com/google/wire"
 )
 
-var ServerProvider = wire.NewSet(NewGRPCServer, rpc.NewAuthServer, rpc.NewMenuServer)
+var ServerProvider = wire.NewSet(NewGRPCServer, rpc.NewAuthServer,
+	rpc.NewMenuServer,
+	rpc.NewUserServer)

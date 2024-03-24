@@ -2,34 +2,64 @@ package router
 
 import (
 	context "context"
+	"fmt"
+	"github.com/go-atreus/atreus-server/internal/conf"
 	"github.com/go-atreus/protocol/admin"
 	"github.com/go-atreus/protocol/admin/auth"
 	"github.com/go-atreus/protocol/admin/menu"
-	"github.com/go-kratos/kratos/contrib/registry/zookeeper/v2"
+	"github.com/go-atreus/protocol/admin/user"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
+	"github.com/go-kratos/kratos/v2/registry"
+	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/go-zookeeper/zk"
-	"time"
+	jwtv4 "github.com/golang-jwt/jwt/v5"
 )
 
 type AuthApi struct {
 	*auth.AuthImpl
 	*menu.MenuImpl
+	*user.UserImpl
 }
 
 var _ auth.AuthHTTPServer = (*AuthApi)(nil)
 var _ menu.MenuHTTPServer = (*AuthApi)(nil)
+var _ user.UserHTTPServer = (*AuthApi)(nil)
 
-func NewAuthApi(logger log.Logger) *AuthApi {
-	address := "discovery:///" + admin.ServerName
-
-	cli, _, err := zk.Connect([]string{"127.0.0.1:12181"}, time.Second*15)
-	if err != nil {
-		panic(err)
+func Client(keyProvider jwtv4.Keyfunc, opts ...jwt.Option) middleware.Middleware {
+	return func(handler middleware.Handler) middleware.Handler {
+		return func(ctx context.Context, req interface{}) (interface{}, error) {
+			if keyProvider == nil {
+				return nil, jwt.ErrNeedTokenProvider
+			}
+			var fromContext jwtv4.Claims
+			var ok bool
+			if fromContext, ok = jwt.FromContext(ctx); !ok {
+				fromContext = &jwtv4.MapClaims{}
+			}
+			token := jwtv4.NewWithClaims(jwtv4.SigningMethodHS256, fromContext)
+			key, err := keyProvider(token)
+			if err != nil {
+				return nil, jwt.ErrGetKey
+			}
+			tokenStr, err := token.SignedString(key)
+			if err != nil {
+				return nil, jwt.ErrSignToken
+			}
+			if clientContext, ok := transport.FromClientContext(ctx); ok {
+				clientContext.RequestHeader().Set("Authorization", fmt.Sprintf("Bearer %s", tokenStr))
+				return handler(ctx, req)
+			}
+			return nil, jwt.ErrWrongContext
+		}
 	}
-	dis := zookeeper.New(cli)
+}
+
+func NewAuthApi(logger log.Logger, authConfig *conf.Auth, dis registry.Discovery) *AuthApi {
+	address := "discovery:///" + admin.ServerName
 
 	conn, err := grpc.DialInsecure(
 		context.Background(),
@@ -38,6 +68,10 @@ func NewAuthApi(logger log.Logger) *AuthApi {
 		grpc.WithMiddleware(
 			tracing.Client(),
 			logging.Client(logger),
+			Client(func(token *jwtv4.Token) (interface{}, error) {
+				return []byte(authConfig.Key), nil
+			},
+				jwt.WithSigningMethod(jwtv4.SigningMethodHS256)),
 		),
 	)
 
@@ -45,9 +79,9 @@ func NewAuthApi(logger log.Logger) *AuthApi {
 		log.NewHelper(logger).Error(err)
 		return nil
 	}
-	client := auth.NewAuthClient(conn)
-	menuClient := menu.NewMenuClient(conn)
 	return &AuthApi{
-		AuthImpl: auth.NewAuthImpl(client),
-		MenuImpl: menu.NewMenuImpl(menuClient)}
+		AuthImpl: auth.NewAuthImpl(conn),
+		MenuImpl: menu.NewMenuImpl(conn),
+		UserImpl: user.NewUserImpl(conn),
+	}
 }

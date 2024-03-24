@@ -7,6 +7,7 @@
 package main
 
 import (
+	"github.com/go-atreus/atreus-server/internal/conf"
 	"github.com/go-atreus/atreus-server/internal/data"
 	"github.com/go-atreus/atreus-server/internal/server"
 	"github.com/go-atreus/atreus-server/internal/server/router"
@@ -18,9 +19,10 @@ import (
 // Injectors from wire.go:
 
 // initApp init application.
-func initApp(logger log.Logger, tracerProvider *trace.TracerProvider) (*kratos.App, func(), error) {
-	authApi := router.NewAuthApi(logger)
-	httpServer := server.NewHTTPServer(authApi, logger, tracerProvider)
+func initApp(logger log.Logger, tracerProvider *trace.TracerProvider, bootstrap *conf.Bootstrap, auth *conf.Auth) (*kratos.App, func(), error) {
+	discovery := data.NewDiscovery()
+	authApi := router.NewAuthApi(logger, auth, discovery)
+	httpServer := server.NewHTTPServer(authApi, logger, auth, tracerProvider)
 	grpcServer := server.NewGRPCServer()
 	registrar := data.NewRegistrar()
 	app := newApp(logger, httpServer, grpcServer, registrar)

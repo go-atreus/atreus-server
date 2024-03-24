@@ -1,19 +1,41 @@
 package server
 
 import (
+	"context"
+	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
 	"github.com/go-atreus/atreus-server/app/admin/internal/server/rpc"
 	"github.com/go-atreus/protocol/admin/auth"
 	"github.com/go-atreus/protocol/admin/menu"
+	"github.com/go-atreus/protocol/admin/user"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/metrics"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/selector"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
+	jwt2 "github.com/golang-jwt/jwt/v5"
 )
 
-func NewGRPCServer(logger log.Logger, authSvr *rpc.AuthServer, menuSvr *rpc.MenuServer) *grpc.Server {
+const TestKey = "abc"
+
+func NewWhiteListMatcher() selector.MatchFunc {
+
+	whiteList := make(map[string]struct{})
+	whiteList["/Atreus.auth.Auth/getUserToken"] = struct{}{}
+	whiteList["/shop.interface.v1.ShopInterface/Register"] = struct{}{}
+	return func(ctx context.Context, operation string) bool {
+		if _, ok := whiteList[operation]; ok {
+			return false
+		}
+		return true
+	}
+}
+func NewGRPCServer(logger log.Logger, authConfig *conf.Auth,
+	userSvr *rpc.UserServer,
+	authSvr *rpc.AuthServer, menuSvr *rpc.MenuServer) *grpc.Server {
 
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
@@ -22,6 +44,17 @@ func NewGRPCServer(logger log.Logger, authSvr *rpc.AuthServer, menuSvr *rpc.Menu
 			logging.Server(logger),
 			metrics.Server(),
 			validate.Validator(),
+			selector.Server(
+				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
+					return []byte(authConfig.Key), nil
+				},
+					jwt.WithSigningMethod(jwt2.SigningMethodHS256),
+					jwt.WithClaims(func() jwt2.Claims {
+						return jwt2.MapClaims{}
+					})),
+			).
+				Match(NewWhiteListMatcher()).
+				Build(),
 		),
 	}
 	//opts = append(opts, grpc.Network("0.0.0.0"))
@@ -29,5 +62,6 @@ func NewGRPCServer(logger log.Logger, authSvr *rpc.AuthServer, menuSvr *rpc.Menu
 	svr := grpc.NewServer(opts...)
 	auth.RegisterAuthServer(svr, authSvr)
 	menu.RegisterMenuServer(svr, menuSvr)
+	user.RegisterUserServer(svr, userSvr)
 	return svr
 }

@@ -2,15 +2,19 @@ package rpc
 
 import (
 	context "context"
+	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
 	"github.com/go-atreus/protocol/admin/auth"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var _ auth.AuthServer = (*AuthServer)(nil)
 
-type AuthServer struct{}
+type AuthServer struct {
+	key string
+}
 
-func NewAuthServer() *AuthServer {
-	return &AuthServer{}
+func NewAuthServer(config *conf.Auth) *AuthServer {
+	return &AuthServer{key: config.Key}
 }
 
 func (s *AuthServer) UserToken(ctx context.Context, req *auth.UserTokenReq) (*auth.UserTokenResp, error) {
@@ -18,8 +22,15 @@ func (s *AuthServer) UserToken(ctx context.Context, req *auth.UserTokenReq) (*au
 }
 
 func (s *AuthServer) GetUserToken(ctx context.Context, req *auth.GetUserTokenReq) (*auth.GetUserTokenResp, error) {
-	//TODO implement me
-	panic("implement me")
+	// generate token
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": 1,
+	})
+	signedString, err := claims.SignedString([]byte(s.key))
+	if err != nil {
+		return nil, err
+	}
+	return &auth.GetUserTokenResp{Token: signedString}, nil
 }
 
 func (s *AuthServer) ForceLogout(ctx context.Context, req *auth.ForceLogoutReq) (*auth.ForceLogoutResp, error) {
