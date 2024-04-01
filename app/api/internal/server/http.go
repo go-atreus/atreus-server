@@ -4,8 +4,8 @@ import (
 	"context"
 	sj "encoding/json"
 	"github.com/gin-gonic/gin"
-	"github.com/go-atreus/atreus-server/internal/conf"
-	"github.com/go-atreus/atreus-server/internal/server/router"
+	"github.com/go-atreus/atreus-server/app/api/internal/conf"
+	"github.com/go-atreus/atreus-server/app/api/internal/server/router"
 	"github.com/go-atreus/protocol/admin/auth"
 	"github.com/go-atreus/protocol/admin/menu"
 	"github.com/go-atreus/protocol/admin/user"
@@ -38,6 +38,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 }
 func NewHTTPServer(authApi *router.AuthApi, logger log.Logger,
 	authConfig *conf.Auth,
+	bc *conf.Bootstrap,
 	tp *tracesdk.TracerProvider,
 ) *http.Server {
 	gin.SetMode(gin.ReleaseMode)
@@ -65,7 +66,16 @@ func NewHTTPServer(authApi *router.AuthApi, logger log.Logger,
 		),
 		http.ResponseEncoder(JsonResponseEncoder),
 	}
-	opts = append(opts, http.Address("0.0.0.0:8000"))
+	c := bc.Server
+	if c.Http.Network != "" {
+		opts = append(opts, http.Network(c.Http.Network))
+	}
+	if c.Http.Addr != "" {
+		opts = append(opts, http.Address(c.Http.Addr))
+	}
+	if c.Http.Timeout != nil {
+		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
+	}
 	httpSrv := http.NewServer(opts...)
 	auth.RegisterAuthHTTPServer(httpSrv, authApi)
 	menu.RegisterMenuHTTPServer(httpSrv, authApi)

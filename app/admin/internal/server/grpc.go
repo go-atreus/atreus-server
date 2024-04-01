@@ -33,7 +33,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 		return true
 	}
 }
-func NewGRPCServer(logger log.Logger, authConfig *conf.Auth,
+func NewGRPCServer(logger log.Logger, bc *conf.Bootstrap, authConfig *conf.Auth,
 	userSvr *rpc.UserServer,
 	authSvr *rpc.AuthServer, menuSvr *rpc.MenuServer) *grpc.Server {
 
@@ -57,8 +57,16 @@ func NewGRPCServer(logger log.Logger, authConfig *conf.Auth,
 				Build(),
 		),
 	}
-	//opts = append(opts, grpc.Network("0.0.0.0"))
-	opts = append(opts, grpc.Address("127.0.0.1:8081"))
+	c := bc.Server
+	if c.Grpc.Network != "" {
+		opts = append(opts, grpc.Network(c.Grpc.Network))
+	}
+	if c.Grpc.Addr != "" {
+		opts = append(opts, grpc.Address(c.Grpc.Addr))
+	}
+	if c.Grpc.Timeout != nil {
+		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
+	}
 	svr := grpc.NewServer(opts...)
 	auth.RegisterAuthServer(svr, authSvr)
 	menu.RegisterMenuServer(svr, menuSvr)

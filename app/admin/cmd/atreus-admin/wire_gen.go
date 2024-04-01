@@ -23,7 +23,7 @@ func initApp(logger log.Logger, tracerProvider *trace.TracerProvider, bootstrap 
 	userServer := rpc.NewUserServer(logger)
 	authServer := rpc.NewAuthServer(auth)
 	menuServer := rpc.NewMenuServer(logger)
-	grpcServer := server.NewGRPCServer(logger, auth, userServer, authServer, menuServer)
+	grpcServer := server.NewGRPCServer(logger, bootstrap, auth, userServer, authServer, menuServer)
 	registrar := data.NewRegistrar()
 	app := newApp(logger, grpcServer, registrar)
 	return app, func() {

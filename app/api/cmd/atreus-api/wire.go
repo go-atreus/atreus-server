@@ -4,9 +4,9 @@
 package main
 
 import (
-	"github.com/go-atreus/atreus-server/internal/conf"
-	"github.com/go-atreus/atreus-server/internal/data"
-	"github.com/go-atreus/atreus-server/internal/server"
+	"github.com/go-atreus/atreus-server/app/api/internal/conf"
+	"github.com/go-atreus/atreus-server/app/api/internal/data"
+	"github.com/go-atreus/atreus-server/app/api/internal/server"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"

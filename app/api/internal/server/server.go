@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/go-atreus/atreus-server/internal/server/router"
+	"github.com/go-atreus/atreus-server/app/api/internal/server/router"
 	"github.com/google/wire"
 )
 

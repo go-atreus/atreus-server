@@ -13,6 +13,18 @@ type AuthServer struct {
 	key string
 }
 
+func (s *AuthServer) UserLogin(ctx context.Context, req *auth.UserLoginReq) (*auth.UserTokenResp, error) {
+	// generate token
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": 1,
+	})
+	signedString, err := claims.SignedString([]byte(s.key))
+	if err != nil {
+		return nil, err
+	}
+	return &auth.UserTokenResp{Token: signedString}, nil
+}
+
 func NewAuthServer(config *conf.Auth) *AuthServer {
 	return &AuthServer{key: config.Key}
 }

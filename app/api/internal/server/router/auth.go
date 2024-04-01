@@ -3,7 +3,7 @@ package router
 import (
 	context "context"
 	"fmt"
-	"github.com/go-atreus/atreus-server/internal/conf"
+	"github.com/go-atreus/atreus-server/app/api/internal/conf"
 	"github.com/go-atreus/protocol/admin"
 	"github.com/go-atreus/protocol/admin/auth"
 	"github.com/go-atreus/protocol/admin/menu"

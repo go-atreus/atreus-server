@@ -1,9 +1,12 @@
 package main
 
 import (
-	"github.com/go-atreus/atreus-server/internal/conf"
+	"flag"
+	"github.com/go-atreus/atreus-server/app/api/internal/conf"
 	"github.com/go-atreus/tools/trace"
 	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/config"
+	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/registry"
@@ -24,6 +27,9 @@ var (
 	id, _ = os.Hostname()
 )
 
+func init() {
+	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
+}
 func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server, rs registry.Registrar) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
@@ -40,6 +46,7 @@ func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server, rs registry.Reg
 }
 
 func main() {
+	flag.Parse()
 	logger := log.With(log.DefaultLogger,
 		"ts", log.DefaultTimestamp,
 		"caller", log.DefaultCaller,
@@ -51,8 +58,20 @@ func main() {
 	)
 
 	tp := trace.InitTrace(Name)
-	bc := &conf.Bootstrap{Auth: &conf.Auth{Key: "abc"}}
-	app, cleanup, err := initApp(logger, tp, bc, bc.Auth)
+	c := config.New(
+		config.WithSource(
+			file.NewSource(flagconf),
+		),
+	)
+	if err := c.Load(); err != nil {
+		panic(err)
+	}
+
+	var bc conf.Bootstrap
+	if err := c.Scan(&bc); err != nil {
+		panic(err)
+	}
+	app, cleanup, err := initApp(logger, tp, &bc, bc.Auth)
 	if err != nil {
 		panic(err)
 	}
