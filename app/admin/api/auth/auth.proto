@@ -1,0 +1,70 @@
+syntax = "proto3";
+package Atreus.auth;
+option go_package = "github.com/go-atreus/protocol/auth";
+
+import "google/api/annotations.proto";
+
+message userLoginReq{
+  string username = 1;
+  string password = 2;
+}
+
+message userTokenReq {
+  string secret = 1;
+  int32  platformID = 2;
+  string userID = 3;
+}
+message userTokenResp {
+  string token = 2;
+  int64  expireTimeSeconds = 3;
+}
+
+message forceLogoutReq {
+  int32  platformID = 1;
+  string userID = 2;
+}
+message forceLogoutResp {
+}
+
+message parseTokenReq{
+  string token = 1;
+}
+message parseTokenResp{
+  string userID = 1;
+  string platform = 2;
+  int64 expireTimeSeconds = 4;
+}
+
+message getUserTokenReq{
+  int32  platformID = 1;
+  string userID = 2;
+}
+
+message getUserTokenResp{
+  string token = 1;
+  int64  expireTimeSeconds = 2;
+}
+
+service Auth {
+  //login
+  rpc userLogin(userLoginReq) returns(userTokenResp){
+    option (google.api.http) = {post: "/auth/login", body: "*"};
+  };
+  //生成token
+  rpc userToken(userTokenReq) returns(userTokenResp){
+    option (google.api.http) = {post: "/auth/user_token", body: "*"};
+  };
+  // 管理员获取用户 token
+  rpc getUserToken(getUserTokenReq)returns(getUserTokenResp){
+    option (google.api.http) = {post: "/auth/get_user_token", body: "*"};
+  };
+  //强制退出登录
+  rpc forceLogout(forceLogoutReq) returns(forceLogoutResp){
+    option (google.api.http) = {post: "/auth/force_logout", body: "*"};
+  };
+  //解析token
+  rpc parseToken(parseTokenReq)returns(parseTokenResp){
+    option (google.api.http) = {post: "/auth/parse_token", body: "*"};
+  };
+}
+

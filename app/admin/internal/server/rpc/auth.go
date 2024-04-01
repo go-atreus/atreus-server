@@ -2,8 +2,8 @@ package rpc
 
 import (
 	context "context"
+	"github.com/go-atreus/atreus-server/app/admin/api/auth"
 	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
-	"github.com/go-atreus/protocol/admin/auth"
 	"github.com/golang-jwt/jwt/v5"
 )
 

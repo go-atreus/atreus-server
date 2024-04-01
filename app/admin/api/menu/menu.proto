@@ -1,0 +1,34 @@
+syntax = "proto3";
+package Atreus.menu;
+option go_package = "github.com/go-atreus/protocol/menu";
+
+import "google/api/annotations.proto";
+
+message getMenuReq {
+  string secret = 1;
+  int32  platformID = 2;
+  string userID = 3;
+}
+message getMenuResp {
+  repeated menu menus = 1;
+  int64  expireTimeSeconds = 3;
+}
+
+message menu{
+  string name = 1;
+  string icon = 2;
+  repeated menu children = 3;
+}
+
+service Menu {
+  //获取菜单树
+  rpc getMenu(getMenuReq) returns(getMenuResp){
+    option (google.api.http) = {post: "/menu/getMenu", body: "*"};
+  };
+  //分页获取基础menu列表
+  rpc getMenuList(getMenuReq) returns(getMenuResp){
+    option (google.api.http) = {post: "/menu/getMenuList", body: "*"};
+  };
+
+}
+

@@ -2,7 +2,7 @@ package rpc
 
 import (
 	context "context"
-	"github.com/go-atreus/protocol/admin/menu"
+	"github.com/go-atreus/atreus-server/app/admin/api/menu"
 	"github.com/go-kratos/kratos/v2/log"
 )
 

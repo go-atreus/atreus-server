@@ -2,11 +2,11 @@ package server
 
 import (
 	"context"
+	"github.com/go-atreus/atreus-server/app/admin/api/auth"
+	"github.com/go-atreus/atreus-server/app/admin/api/menu"
+	"github.com/go-atreus/atreus-server/app/admin/api/user"
 	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
 	"github.com/go-atreus/atreus-server/app/admin/internal/server/rpc"
-	"github.com/go-atreus/protocol/admin/auth"
-	"github.com/go-atreus/protocol/admin/menu"
-	"github.com/go-atreus/protocol/admin/user"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
