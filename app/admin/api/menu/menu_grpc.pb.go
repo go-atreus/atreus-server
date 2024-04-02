@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Menu_GetMenu_FullMethodName     = "/Atreus.menu.Menu/getMenu"
-	Menu_GetMenuList_FullMethodName = "/Atreus.menu.Menu/getMenuList"
+	Menu_GetMenu_FullMethodName     = "/atreus.menu.Menu/getMenu"
+	Menu_GetMenuList_FullMethodName = "/atreus.menu.Menu/getMenuList"
 )
 
 // MenuClient is the client API for Menu service.
@@ -131,7 +131,7 @@ func _Menu_GetMenuList_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Menu_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Atreus.menu.Menu",
+	ServiceName: "atreus.menu.Menu",
 	HandlerType: (*MenuServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

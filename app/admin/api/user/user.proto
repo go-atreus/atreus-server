@@ -1,5 +1,5 @@
 syntax = "proto3";
-package Atreus.user;
+package atreus.user;
 //option go_package = "github.com/go-atreus/protocol/auth";
 
 import "google/api/annotations.proto";

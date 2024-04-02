@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_GetUserInfo_FullMethodName = "/Atreus.user.User/getUserInfo"
+	User_GetUserInfo_FullMethodName = "/atreus.user.User/getUserInfo"
 )
 
 // UserClient is the client API for User service.
@@ -96,7 +96,7 @@ func _User_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var User_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Atreus.user.User",
+	ServiceName: "atreus.user.User",
 	HandlerType: (*UserServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

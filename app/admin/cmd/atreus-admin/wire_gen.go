@@ -10,7 +10,7 @@ import (
 	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
 	"github.com/go-atreus/atreus-server/app/admin/internal/data"
 	"github.com/go-atreus/atreus-server/app/admin/internal/server"
-	"github.com/go-atreus/atreus-server/app/admin/internal/server/rpc"
+	"github.com/go-atreus/atreus-server/app/admin/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -20,9 +20,9 @@ import (
 
 // initApp init application.
 func initApp(logger log.Logger, tracerProvider *trace.TracerProvider, bootstrap *conf.Bootstrap, auth *conf.Auth) (*kratos.App, func(), error) {
-	userServer := rpc.NewUserServer(logger)
-	authServer := rpc.NewAuthServer(auth)
-	menuServer := rpc.NewMenuServer(logger)
+	userServer := service.NewUserServer(logger)
+	authServer := service.NewAuthServer(auth)
+	menuServer := service.NewMenuServer(logger)
 	grpcServer := server.NewGRPCServer(logger, bootstrap, auth, userServer, authServer, menuServer)
 	registrar := data.NewRegistrar()
 	app := newApp(logger, grpcServer, registrar)

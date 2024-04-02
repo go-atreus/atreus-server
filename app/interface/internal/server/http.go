@@ -7,8 +7,8 @@ import (
 	"github.com/go-atreus/atreus-server/app/admin/api/auth"
 	"github.com/go-atreus/atreus-server/app/admin/api/menu"
 	"github.com/go-atreus/atreus-server/app/admin/api/user"
-	"github.com/go-atreus/atreus-server/app/api/internal/conf"
-	"github.com/go-atreus/atreus-server/app/api/internal/server/router"
+	"github.com/go-atreus/atreus-server/app/interface/internal/conf"
+	"github.com/go-atreus/atreus-server/app/interface/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
@@ -28,6 +28,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 
 	whiteList := make(map[string]struct{})
 	whiteList["/Atreus.auth.Auth/getUserToken"] = struct{}{}
+	whiteList["/atreus.auth.Auth/userLogin"] = struct{}{}
 	whiteList["/shop.interface.v1.ShopInterface/Register"] = struct{}{}
 	return func(ctx context.Context, operation string) bool {
 		if _, ok := whiteList[operation]; ok {
@@ -36,7 +37,9 @@ func NewWhiteListMatcher() selector.MatchFunc {
 		return true
 	}
 }
-func NewHTTPServer(authApi *router.AuthApi, logger log.Logger,
+func NewHTTPServer(
+	adminInterface *service.AdminInterface,
+	logger log.Logger,
 	authConfig *conf.Auth,
 	bc *conf.Bootstrap,
 	tp *tracesdk.TracerProvider,
@@ -77,9 +80,9 @@ func NewHTTPServer(authApi *router.AuthApi, logger log.Logger,
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	httpSrv := http.NewServer(opts...)
-	auth.RegisterAuthHTTPServer(httpSrv, authApi)
-	menu.RegisterMenuHTTPServer(httpSrv, authApi)
-	user.RegisterUserHTTPServer(httpSrv, authApi)
+	user.RegisterUserHTTPServer(httpSrv, adminInterface)
+	auth.RegisterAuthHTTPServer(httpSrv, adminInterface)
+	menu.RegisterMenuHTTPServer(httpSrv, adminInterface)
 	httpSrv.HandlePrefix("/", r)
 	return httpSrv
 }

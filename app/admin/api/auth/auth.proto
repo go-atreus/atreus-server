@@ -1,5 +1,5 @@
 syntax = "proto3";
-package Atreus.auth;
+package atreus.auth;
 option go_package = "github.com/go-atreus/protocol/auth";
 
 import "google/api/annotations.proto";
@@ -48,7 +48,7 @@ message getUserTokenResp{
 service Auth {
   //login
   rpc userLogin(userLoginReq) returns(userTokenResp){
-    option (google.api.http) = {post: "/auth/login", body: "*"};
+    option (google.api.http) = {post: "/login", body: "*"};
   };
   //生成token
   rpc userToken(userTokenReq) returns(userTokenResp){

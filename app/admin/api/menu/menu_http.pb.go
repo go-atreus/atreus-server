@@ -19,8 +19,8 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationMenugetMenu = "/Atreus.menu.Menu/getMenu"
-const OperationMenugetMenuList = "/Atreus.menu.Menu/getMenuList"
+const OperationMenugetMenu = "/atreus.menu.Menu/getMenu"
+const OperationMenugetMenuList = "/atreus.menu.Menu/getMenuList"
 
 type MenuHTTPServer interface {
 	// GetMenu获取菜单树

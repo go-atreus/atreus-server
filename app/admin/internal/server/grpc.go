@@ -6,7 +6,7 @@ import (
 	"github.com/go-atreus/atreus-server/app/admin/api/menu"
 	"github.com/go-atreus/atreus-server/app/admin/api/user"
 	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
-	"github.com/go-atreus/atreus-server/app/admin/internal/server/rpc"
+	"github.com/go-atreus/atreus-server/app/admin/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
@@ -34,8 +34,8 @@ func NewWhiteListMatcher() selector.MatchFunc {
 	}
 }
 func NewGRPCServer(logger log.Logger, bc *conf.Bootstrap, authConfig *conf.Auth,
-	userSvr *rpc.UserServer,
-	authSvr *rpc.AuthServer, menuSvr *rpc.MenuServer) *grpc.Server {
+	userSvr *service.UserServer,
+	authSvr *service.AuthServer, menuSvr *service.MenuServer) *grpc.Server {
 
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(

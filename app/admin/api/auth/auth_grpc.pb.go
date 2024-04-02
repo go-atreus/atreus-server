@@ -19,11 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Auth_UserLogin_FullMethodName    = "/Atreus.auth.Auth/userLogin"
-	Auth_UserToken_FullMethodName    = "/Atreus.auth.Auth/userToken"
-	Auth_GetUserToken_FullMethodName = "/Atreus.auth.Auth/getUserToken"
-	Auth_ForceLogout_FullMethodName  = "/Atreus.auth.Auth/forceLogout"
-	Auth_ParseToken_FullMethodName   = "/Atreus.auth.Auth/parseToken"
+	Auth_UserLogin_FullMethodName    = "/atreus.auth.Auth/userLogin"
+	Auth_UserToken_FullMethodName    = "/atreus.auth.Auth/userToken"
+	Auth_GetUserToken_FullMethodName = "/atreus.auth.Auth/getUserToken"
+	Auth_ForceLogout_FullMethodName  = "/atreus.auth.Auth/forceLogout"
+	Auth_ParseToken_FullMethodName   = "/atreus.auth.Auth/parseToken"
 )
 
 // AuthClient is the client API for Auth service.
@@ -236,7 +236,7 @@ func _Auth_ParseToken_Handler(srv interface{}, ctx context.Context, dec func(int
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Auth_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Atreus.auth.Auth",
+	ServiceName: "atreus.auth.Auth",
 	HandlerType: (*AuthServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

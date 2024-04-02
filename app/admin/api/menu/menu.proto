@@ -1,5 +1,5 @@
 syntax = "proto3";
-package Atreus.menu;
+package atreus.menu;
 option go_package = "github.com/go-atreus/protocol/menu";
 
 import "google/api/annotations.proto";

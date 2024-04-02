@@ -19,7 +19,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationUsergetUserInfo = "/Atreus.user.User/getUserInfo"
+const OperationUsergetUserInfo = "/atreus.user.User/getUserInfo"
 
 type UserHTTPServer interface {
 	// GetUserInfo获取用户信息

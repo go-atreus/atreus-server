@@ -7,10 +7,10 @@
 package main
 
 import (
-	"github.com/go-atreus/atreus-server/app/api/internal/conf"
-	"github.com/go-atreus/atreus-server/app/api/internal/data"
-	"github.com/go-atreus/atreus-server/app/api/internal/server"
-	"github.com/go-atreus/atreus-server/app/api/internal/server/router"
+	"github.com/go-atreus/atreus-server/app/interface/internal/conf"
+	"github.com/go-atreus/atreus-server/app/interface/internal/data"
+	"github.com/go-atreus/atreus-server/app/interface/internal/server"
+	"github.com/go-atreus/atreus-server/app/interface/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -21,8 +21,8 @@ import (
 // initApp init application.
 func initApp(logger log.Logger, tracerProvider *trace.TracerProvider, bootstrap *conf.Bootstrap, auth *conf.Auth) (*kratos.App, func(), error) {
 	discovery := data.NewDiscovery()
-	authApi := router.NewAuthApi(logger, auth, discovery)
-	httpServer := server.NewHTTPServer(authApi, logger, auth, bootstrap, tracerProvider)
+	adminInterface := service.NewAdminInterface(logger, auth, discovery)
+	httpServer := server.NewHTTPServer(adminInterface, logger, auth, bootstrap, tracerProvider)
 	grpcServer := server.NewGRPCServer()
 	registrar := data.NewRegistrar()
 	app := newApp(logger, httpServer, grpcServer, registrar)

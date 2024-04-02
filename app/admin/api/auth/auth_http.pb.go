@@ -19,11 +19,11 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationAuthforceLogout = "/Atreus.auth.Auth/forceLogout"
-const OperationAuthgetUserToken = "/Atreus.auth.Auth/getUserToken"
-const OperationAuthparseToken = "/Atreus.auth.Auth/parseToken"
-const OperationAuthuserLogin = "/Atreus.auth.Auth/userLogin"
-const OperationAuthuserToken = "/Atreus.auth.Auth/userToken"
+const OperationAuthforceLogout = "/atreus.auth.Auth/forceLogout"
+const OperationAuthgetUserToken = "/atreus.auth.Auth/getUserToken"
+const OperationAuthparseToken = "/atreus.auth.Auth/parseToken"
+const OperationAuthuserLogin = "/atreus.auth.Auth/userLogin"
+const OperationAuthuserToken = "/atreus.auth.Auth/userToken"
 
 type AuthHTTPServer interface {
 	// ForceLogout强制退出登录
@@ -40,7 +40,7 @@ type AuthHTTPServer interface {
 
 func RegisterAuthHTTPServer(s *http.Server, srv AuthHTTPServer) {
 	r := s.Route("/")
-	r.POST("/auth/login", _Auth_UserLogin0_HTTP_Handler(srv))
+	r.POST("/login", _Auth_UserLogin0_HTTP_Handler(srv))
 	r.POST("/auth/user_token", _Auth_UserToken0_HTTP_Handler(srv))
 	r.POST("/auth/get_user_token", _Auth_GetUserToken0_HTTP_Handler(srv))
 	r.POST("/auth/force_logout", _Auth_ForceLogout0_HTTP_Handler(srv))
@@ -214,7 +214,7 @@ func (c *AuthHTTPClientImpl) ParseToken(ctx context.Context, in *ParseTokenReq, 
 
 func (c *AuthHTTPClientImpl) UserLogin(ctx context.Context, in *UserLoginReq, opts ...http.CallOption) (*UserTokenResp, error) {
 	var out UserTokenResp
-	pattern := "/auth/login"
+	pattern := "/login"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAuthuserLogin))
 	opts = append(opts, http.PathTemplate(pattern))

@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/go-atreus/atreus-server/app/api/internal/conf"
+	"github.com/go-atreus/atreus-server/app/interface/internal/conf"
 	"github.com/go-atreus/tools/trace"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
