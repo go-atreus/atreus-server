@@ -19,5 +19,8 @@ func (UserServer) GetUserInfo(ctx context.Context, req *user.UserInfoReq) (*user
 	if claims, ok := jwt.FromContext(ctx); ok {
 		sub = claims.(jwt2.MapClaims)["user_id"].(float64)
 	}
-	return &user.UserInfoResp{UserID: int32(sub)}, nil
+	return &user.UserInfoResp{Userid: int32(sub),
+		Name:   "admin",
+		Avatar: "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png",
+	}, nil
 }

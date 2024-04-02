@@ -10,8 +10,19 @@ message userInfoReq {
   string userID = 3;
 }
 message userInfoResp {
-  string token = 2;
-  int32 userID = 4;
+  string token = 1;
+  string name = 2;
+  string avatar = 3;
+  int32 userid = 4;
+  string email = 5;
+  string signature = 6;
+  string title = 7;
+  string group = 8;
+  string tags = 9;
+  string notifyCount = 10;
+  string unreadCount = 11;
+  string country = 12;
+  string access = 13;
 }
 
 message forceLogoutReq {
