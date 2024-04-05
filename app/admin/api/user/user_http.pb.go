@@ -10,6 +10,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,16 +20,22 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationUserCreateSysUser = "/atreus.user.User/CreateSysUser"
 const OperationUsergetUserInfo = "/atreus.user.User/getUserInfo"
+const OperationUserListSysUser = "/atreus.user.User/ListSysUser"
 
 type UserHTTPServer interface {
+	CreateSysUser(context.Context, *SysUser) (*SysUser, error)
 	// GetUserInfo获取用户信息
-	GetUserInfo(context.Context, *UserInfoReq) (*UserInfoResp, error)
+	GetUserInfo(context.Context, *UserInfoReq) (*SysUser, error)
+	ListSysUser(context.Context, *emptypb.Empty) (*ListUser, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
 	r.POST("/user/info", _User_GetUserInfo0_HTTP_Handler(srv))
+	r.POST("/user/create", _User_CreateSysUser0_HTTP_Handler(srv))
+	r.POST("/system/user/list", _User_ListSysUser0_HTTP_Handler(srv))
 }
 
 func _User_GetUserInfo0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -48,13 +55,59 @@ func _User_GetUserInfo0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) 
 		if err != nil {
 			return err
 		}
-		reply := out.(*UserInfoResp)
+		reply := out.(*SysUser)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_CreateSysUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SysUser
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserCreateSysUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateSysUser(ctx, req.(*SysUser))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SysUser)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_ListSysUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserListSysUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListSysUser(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListUser)
 		return ctx.Result(200, reply)
 	}
 }
 
 type UserHTTPClient interface {
-	GetUserInfo(ctx context.Context, req *UserInfoReq, opts ...http.CallOption) (rsp *UserInfoResp, err error)
+	CreateSysUser(ctx context.Context, req *SysUser, opts ...http.CallOption) (rsp *SysUser, err error)
+	GetUserInfo(ctx context.Context, req *UserInfoReq, opts ...http.CallOption) (rsp *SysUser, err error)
+	ListSysUser(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *ListUser, err error)
 }
 
 type UserHTTPClientImpl struct {
@@ -65,11 +118,37 @@ func NewUserHTTPClient(client *http.Client) UserHTTPClient {
 	return &UserHTTPClientImpl{client}
 }
 
-func (c *UserHTTPClientImpl) GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...http.CallOption) (*UserInfoResp, error) {
-	var out UserInfoResp
+func (c *UserHTTPClientImpl) CreateSysUser(ctx context.Context, in *SysUser, opts ...http.CallOption) (*SysUser, error) {
+	var out SysUser
+	pattern := "/user/create"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserCreateSysUser))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *UserHTTPClientImpl) GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...http.CallOption) (*SysUser, error) {
+	var out SysUser
 	pattern := "/user/info"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUsergetUserInfo))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *UserHTTPClientImpl) ListSysUser(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*ListUser, error) {
+	var out ListUser
+	pattern := "/system/user/list"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserListSysUser))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

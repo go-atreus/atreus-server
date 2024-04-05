@@ -27,6 +27,10 @@ func (c *MenuImpl) GetMenu(ctx context.Context, in *GetMenuReq) (*GetMenuResp, e
 	return c.cc.GetMenu(ctx, in)
 }
 
-func (c *MenuImpl) GetMenuList(ctx context.Context, in *GetMenuReq) (*GetMenuResp, error) {
-	return c.cc.GetMenuList(ctx, in)
+func (c *MenuImpl) ListSysMenu(ctx context.Context, in *GetMenuReq) (*ListSysMenuResp, error) {
+	return c.cc.ListSysMenu(ctx, in)
+}
+
+func (c *MenuImpl) CreateSysMenu(ctx context.Context, in *SysMenu) (*SysMenu, error) {
+	return c.cc.CreateSysMenu(ctx, in)
 }

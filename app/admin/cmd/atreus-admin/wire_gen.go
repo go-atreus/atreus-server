@@ -20,10 +20,12 @@ import (
 
 // initApp init application.
 func initApp(logger log.Logger, tracerProvider *trace.TracerProvider, bootstrap *conf.Bootstrap, auth *conf.Auth) (*kratos.App, func(), error) {
-	userServer := service.NewUserServer(logger)
+	dataData := data.NewData(logger)
+	userService := service.NewUserServer(logger, dataData)
+	roleService := service.NewRoleService(logger, dataData)
 	authServer := service.NewAuthServer(auth)
-	menuServer := service.NewMenuServer(logger)
-	grpcServer := server.NewGRPCServer(logger, bootstrap, auth, userServer, authServer, menuServer)
+	menuServer := service.NewMenuServer(logger, dataData)
+	grpcServer := server.NewGRPCServer(logger, bootstrap, auth, userService, roleService, authServer, menuServer)
 	registrar := data.NewRegistrar()
 	app := newApp(logger, grpcServer, registrar)
 	return app, func() {

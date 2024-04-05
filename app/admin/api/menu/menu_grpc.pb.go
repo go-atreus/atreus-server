@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Menu_GetMenu_FullMethodName     = "/atreus.menu.Menu/getMenu"
-	Menu_GetMenuList_FullMethodName = "/atreus.menu.Menu/getMenuList"
+	Menu_GetMenu_FullMethodName       = "/atreus.menu.Menu/GetMenu"
+	Menu_ListSysMenu_FullMethodName   = "/atreus.menu.Menu/ListSysMenu"
+	Menu_CreateSysMenu_FullMethodName = "/atreus.menu.Menu/CreateSysMenu"
 )
 
 // MenuClient is the client API for Menu service.
@@ -30,7 +31,8 @@ type MenuClient interface {
 	// 获取菜单树
 	GetMenu(ctx context.Context, in *GetMenuReq, opts ...grpc.CallOption) (*GetMenuResp, error)
 	// 分页获取基础menu列表
-	GetMenuList(ctx context.Context, in *GetMenuReq, opts ...grpc.CallOption) (*GetMenuResp, error)
+	ListSysMenu(ctx context.Context, in *GetMenuReq, opts ...grpc.CallOption) (*ListSysMenuResp, error)
+	CreateSysMenu(ctx context.Context, in *SysMenu, opts ...grpc.CallOption) (*SysMenu, error)
 }
 
 type menuClient struct {
@@ -50,9 +52,18 @@ func (c *menuClient) GetMenu(ctx context.Context, in *GetMenuReq, opts ...grpc.C
 	return out, nil
 }
 
-func (c *menuClient) GetMenuList(ctx context.Context, in *GetMenuReq, opts ...grpc.CallOption) (*GetMenuResp, error) {
-	out := new(GetMenuResp)
-	err := c.cc.Invoke(ctx, Menu_GetMenuList_FullMethodName, in, out, opts...)
+func (c *menuClient) ListSysMenu(ctx context.Context, in *GetMenuReq, opts ...grpc.CallOption) (*ListSysMenuResp, error) {
+	out := new(ListSysMenuResp)
+	err := c.cc.Invoke(ctx, Menu_ListSysMenu_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *menuClient) CreateSysMenu(ctx context.Context, in *SysMenu, opts ...grpc.CallOption) (*SysMenu, error) {
+	out := new(SysMenu)
+	err := c.cc.Invoke(ctx, Menu_CreateSysMenu_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +77,8 @@ type MenuServer interface {
 	// 获取菜单树
 	GetMenu(context.Context, *GetMenuReq) (*GetMenuResp, error)
 	// 分页获取基础menu列表
-	GetMenuList(context.Context, *GetMenuReq) (*GetMenuResp, error)
+	ListSysMenu(context.Context, *GetMenuReq) (*ListSysMenuResp, error)
+	CreateSysMenu(context.Context, *SysMenu) (*SysMenu, error)
 }
 
 // UnimplementedMenuServer should be embedded to have forward compatible implementations.
@@ -76,8 +88,11 @@ type UnimplementedMenuServer struct {
 func (UnimplementedMenuServer) GetMenu(context.Context, *GetMenuReq) (*GetMenuResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMenu not implemented")
 }
-func (UnimplementedMenuServer) GetMenuList(context.Context, *GetMenuReq) (*GetMenuResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetMenuList not implemented")
+func (UnimplementedMenuServer) ListSysMenu(context.Context, *GetMenuReq) (*ListSysMenuResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListSysMenu not implemented")
+}
+func (UnimplementedMenuServer) CreateSysMenu(context.Context, *SysMenu) (*SysMenu, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSysMenu not implemented")
 }
 
 // UnsafeMenuServer may be embedded to opt out of forward compatibility for this service.
@@ -109,20 +124,38 @@ func _Menu_GetMenu_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Menu_GetMenuList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Menu_ListSysMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMenuReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MenuServer).GetMenuList(ctx, in)
+		return srv.(MenuServer).ListSysMenu(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Menu_GetMenuList_FullMethodName,
+		FullMethod: Menu_ListSysMenu_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MenuServer).GetMenuList(ctx, req.(*GetMenuReq))
+		return srv.(MenuServer).ListSysMenu(ctx, req.(*GetMenuReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Menu_CreateSysMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SysMenu)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MenuServer).CreateSysMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Menu_CreateSysMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MenuServer).CreateSysMenu(ctx, req.(*SysMenu))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -135,12 +168,16 @@ var Menu_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MenuServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "getMenu",
+			MethodName: "GetMenu",
 			Handler:    _Menu_GetMenu_Handler,
 		},
 		{
-			MethodName: "getMenuList",
-			Handler:    _Menu_GetMenuList_Handler,
+			MethodName: "ListSysMenu",
+			Handler:    _Menu_ListSysMenu_Handler,
+		},
+		{
+			MethodName: "CreateSysMenu",
+			Handler:    _Menu_CreateSysMenu_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

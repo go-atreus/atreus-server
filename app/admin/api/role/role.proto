@@ -1,0 +1,76 @@
+syntax = "proto3";
+package atreus.role;
+option go_package = "github.com/go-atreus/atreus-server/app/admin/api/role;role";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "options/gorm.proto";
+import "api/user/user.proto";
+
+message SysRole {
+  option (gorm.opts) = {
+    ormable: true,
+    table: "sys_roles"
+  };
+  // 角色编号
+  int32 id = 1 [(gorm.field).tag = {primary_key: true type:"integer" auto_increment: true}];
+  // 角色名称
+  string name = 2;
+  // 角色标识
+  string code = 3;
+  // 角色备注
+  string remarks = 4;
+  // 角色类型，1：系统角色 2：业务角色
+  int32 type = 5;
+  // 逻辑删除标识，已删除:0，未删除：删除时间戳
+  string deleted = 6;
+  // 创建时间
+  string createTime = 7;
+  // 修改时间
+  string updateTime = 8;
+  // 数据权限：1全部，2本人，3本人及子部门，4本部门
+  int32 scopeType = 9;
+}
+
+message ListRole{
+  // Note repeated field and plural name 'results'
+  repeated SysRole results = 1;
+  user.PageInfo page_info = 2;
+}
+
+service Role {
+  option (gorm.server) = {autogen: true};
+  // 创建角色
+  rpc CreateSysRole(SysRole) returns (SysRole) {
+    option (google.api.http) = {
+      post: "/system/role/create"
+      body: "*"
+    };
+  };
+  // 更新角色
+  rpc Update(SysRole) returns (SysRole) {
+    option (google.api.http) = {
+      put: "/system/role/update"
+      body: "*"
+    };
+  };
+  // 删除角色
+  rpc Delete(SysRole) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/system/role/delete"
+    };
+  };
+  // 获取角色
+  rpc Get(SysRole) returns (SysRole) {
+    option (google.api.http) = {
+      get: "/system/role/get"
+    };
+  };
+  // 获取角色列表
+  rpc List(google.protobuf.Empty) returns (ListRole) {
+    option (google.api.http) = {
+      post: "/system/role/list",
+      body: "*"
+    };
+  }
+}

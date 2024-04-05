@@ -1,0 +1,4 @@
+version: v1
+directories:
+  - app/admin
+  - third_party/gorm

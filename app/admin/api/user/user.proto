@@ -1,21 +1,30 @@
 syntax = "proto3";
 package atreus.user;
-//option go_package = "github.com/go-atreus/protocol/auth";
+option go_package = "github.com/go-atreus/atreus-server/app/admin/api/user;user";
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "options/gorm.proto";
 
 message userInfoReq {
   string secret = 1;
   int32  platformID = 2;
   string userID = 3;
 }
-message userInfoResp {
-  string token = 1;
-  string name = 2;
-  string avatar = 3;
-  int32 userid = 4;
-  string email = 5;
-  string signature = 6;
+
+message SysUser {
+  option (gorm.opts) = {
+    ormable: true,
+    table: "sys_users"
+  };
+  int32 id = 1 [(gorm.field).tag = {primary_key: true type:"integer" auto_increment: true}];
+  string username = 2 [(gorm.field).tag = {unique: true}];
+  string nickName = 3;
+  repeated SysUser children = 4 [(gorm.field).drop = true];
+  string password = 5;
+  int32 parentId = 6;
+
+  string avatar = 14;
   string title = 7;
   string group = 8;
   string tags = 9;
@@ -51,10 +60,37 @@ message getUserTokenResp{
   int64  expireTimeSeconds = 2;
 }
 
+message ListUser{
+  // Note repeated field and plural name 'results'
+  repeated SysUser results = 1;
+  PageInfo page_info = 2;
+}
+
+message PageInfo {
+  // The service response should contain a string to indicate
+  // the next page of resources.
+  // A null value indicates no more pages.
+  string page_token = 1;
+  // The service may optionally include the total number of resources being paged.
+  int32 size = 2;
+  // The service may optionally include the offset of the next page of resources.
+  // A null value indicates no more pages.
+  int32 offset = 3;
+}
+
 service User {
+  option (gorm.server) = {autogen: true};
   //获取用户信息
-  rpc getUserInfo(userInfoReq) returns(userInfoResp){
+  rpc getUserInfo(userInfoReq) returns(SysUser){
     option (google.api.http) = {post: "/user/info", body: "*"};
   };
+
+  rpc CreateSysUser(SysUser) returns (SysUser){
+    option (google.api.http) = {post: "/user/create", body: "*"};
+  };
+
+  rpc ListSysUser(google.protobuf.Empty) returns (ListUser) {
+    option (google.api.http) = {post: "/system/user/list", body: "*"};
+  }
 }
 

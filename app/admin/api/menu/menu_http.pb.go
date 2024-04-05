@@ -19,20 +19,23 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationMenugetMenu = "/atreus.menu.Menu/getMenu"
-const OperationMenugetMenuList = "/atreus.menu.Menu/getMenuList"
+const OperationMenuCreateSysMenu = "/atreus.menu.Menu/CreateSysMenu"
+const OperationMenuGetMenu = "/atreus.menu.Menu/GetMenu"
+const OperationMenuListSysMenu = "/atreus.menu.Menu/ListSysMenu"
 
 type MenuHTTPServer interface {
+	CreateSysMenu(context.Context, *SysMenu) (*SysMenu, error)
 	// GetMenu获取菜单树
 	GetMenu(context.Context, *GetMenuReq) (*GetMenuResp, error)
-	// GetMenuList分页获取基础menu列表
-	GetMenuList(context.Context, *GetMenuReq) (*GetMenuResp, error)
+	// ListSysMenu分页获取基础menu列表
+	ListSysMenu(context.Context, *GetMenuReq) (*ListSysMenuResp, error)
 }
 
 func RegisterMenuHTTPServer(s *http.Server, srv MenuHTTPServer) {
 	r := s.Route("/")
-	r.POST("/menu/getMenu", _Menu_GetMenu0_HTTP_Handler(srv))
-	r.POST("/menu/getMenuList", _Menu_GetMenuList0_HTTP_Handler(srv))
+	r.POST("/system/menu/getMenu", _Menu_GetMenu0_HTTP_Handler(srv))
+	r.POST("/system/menu/list", _Menu_ListSysMenu0_HTTP_Handler(srv))
+	r.POST("/system/menu/create", _Menu_CreateSysMenu0_HTTP_Handler(srv))
 }
 
 func _Menu_GetMenu0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
@@ -44,7 +47,7 @@ func _Menu_GetMenu0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) erro
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationMenugetMenu)
+		http.SetOperation(ctx, OperationMenuGetMenu)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetMenu(ctx, req.(*GetMenuReq))
 		})
@@ -57,7 +60,7 @@ func _Menu_GetMenu0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) erro
 	}
 }
 
-func _Menu_GetMenuList0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
+func _Menu_ListSysMenu0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetMenuReq
 		if err := ctx.Bind(&in); err != nil {
@@ -66,22 +69,45 @@ func _Menu_GetMenuList0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) 
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationMenugetMenuList)
+		http.SetOperation(ctx, OperationMenuListSysMenu)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetMenuList(ctx, req.(*GetMenuReq))
+			return srv.ListSysMenu(ctx, req.(*GetMenuReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetMenuResp)
+		reply := out.(*ListSysMenuResp)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Menu_CreateSysMenu0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SysMenu
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMenuCreateSysMenu)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateSysMenu(ctx, req.(*SysMenu))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SysMenu)
 		return ctx.Result(200, reply)
 	}
 }
 
 type MenuHTTPClient interface {
+	CreateSysMenu(ctx context.Context, req *SysMenu, opts ...http.CallOption) (rsp *SysMenu, err error)
 	GetMenu(ctx context.Context, req *GetMenuReq, opts ...http.CallOption) (rsp *GetMenuResp, err error)
-	GetMenuList(ctx context.Context, req *GetMenuReq, opts ...http.CallOption) (rsp *GetMenuResp, err error)
+	ListSysMenu(ctx context.Context, req *GetMenuReq, opts ...http.CallOption) (rsp *ListSysMenuResp, err error)
 }
 
 type MenuHTTPClientImpl struct {
@@ -92,11 +118,11 @@ func NewMenuHTTPClient(client *http.Client) MenuHTTPClient {
 	return &MenuHTTPClientImpl{client}
 }
 
-func (c *MenuHTTPClientImpl) GetMenu(ctx context.Context, in *GetMenuReq, opts ...http.CallOption) (*GetMenuResp, error) {
-	var out GetMenuResp
-	pattern := "/menu/getMenu"
+func (c *MenuHTTPClientImpl) CreateSysMenu(ctx context.Context, in *SysMenu, opts ...http.CallOption) (*SysMenu, error) {
+	var out SysMenu
+	pattern := "/system/menu/create"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationMenugetMenu))
+	opts = append(opts, http.Operation(OperationMenuCreateSysMenu))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -105,11 +131,24 @@ func (c *MenuHTTPClientImpl) GetMenu(ctx context.Context, in *GetMenuReq, opts .
 	return &out, nil
 }
 
-func (c *MenuHTTPClientImpl) GetMenuList(ctx context.Context, in *GetMenuReq, opts ...http.CallOption) (*GetMenuResp, error) {
+func (c *MenuHTTPClientImpl) GetMenu(ctx context.Context, in *GetMenuReq, opts ...http.CallOption) (*GetMenuResp, error) {
 	var out GetMenuResp
-	pattern := "/menu/getMenuList"
+	pattern := "/system/menu/getMenu"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationMenugetMenuList))
+	opts = append(opts, http.Operation(OperationMenuGetMenu))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *MenuHTTPClientImpl) ListSysMenu(ctx context.Context, in *GetMenuReq, opts ...http.CallOption) (*ListSysMenuResp, error) {
+	var out ListSysMenuResp
+	pattern := "/system/menu/list"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationMenuListSysMenu))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

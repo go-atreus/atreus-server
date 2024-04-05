@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,7 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_GetUserInfo_FullMethodName = "/atreus.user.User/getUserInfo"
+	User_GetUserInfo_FullMethodName   = "/atreus.user.User/getUserInfo"
+	User_CreateSysUser_FullMethodName = "/atreus.user.User/CreateSysUser"
+	User_ListSysUser_FullMethodName   = "/atreus.user.User/ListSysUser"
 )
 
 // UserClient is the client API for User service.
@@ -27,7 +30,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
 	// 获取用户信息
-	GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*UserInfoResp, error)
+	GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*SysUser, error)
+	CreateSysUser(ctx context.Context, in *SysUser, opts ...grpc.CallOption) (*SysUser, error)
+	ListSysUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListUser, error)
 }
 
 type userClient struct {
@@ -38,9 +43,27 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 	return &userClient{cc}
 }
 
-func (c *userClient) GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*UserInfoResp, error) {
-	out := new(UserInfoResp)
+func (c *userClient) GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*SysUser, error) {
+	out := new(SysUser)
 	err := c.cc.Invoke(ctx, User_GetUserInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) CreateSysUser(ctx context.Context, in *SysUser, opts ...grpc.CallOption) (*SysUser, error) {
+	out := new(SysUser)
+	err := c.cc.Invoke(ctx, User_CreateSysUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) ListSysUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListUser, error) {
+	out := new(ListUser)
+	err := c.cc.Invoke(ctx, User_ListSysUser_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -52,15 +75,23 @@ func (c *userClient) GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...g
 // for forward compatibility
 type UserServer interface {
 	// 获取用户信息
-	GetUserInfo(context.Context, *UserInfoReq) (*UserInfoResp, error)
+	GetUserInfo(context.Context, *UserInfoReq) (*SysUser, error)
+	CreateSysUser(context.Context, *SysUser) (*SysUser, error)
+	ListSysUser(context.Context, *emptypb.Empty) (*ListUser, error)
 }
 
 // UnimplementedUserServer should be embedded to have forward compatible implementations.
 type UnimplementedUserServer struct {
 }
 
-func (UnimplementedUserServer) GetUserInfo(context.Context, *UserInfoReq) (*UserInfoResp, error) {
+func (UnimplementedUserServer) GetUserInfo(context.Context, *UserInfoReq) (*SysUser, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
+}
+func (UnimplementedUserServer) CreateSysUser(context.Context, *SysUser) (*SysUser, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSysUser not implemented")
+}
+func (UnimplementedUserServer) ListSysUser(context.Context, *emptypb.Empty) (*ListUser, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListSysUser not implemented")
 }
 
 // UnsafeUserServer may be embedded to opt out of forward compatibility for this service.
@@ -92,6 +123,42 @@ func _User_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_CreateSysUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SysUser)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).CreateSysUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_CreateSysUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).CreateSysUser(ctx, req.(*SysUser))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_ListSysUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ListSysUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_ListSysUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ListSysUser(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +169,14 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "getUserInfo",
 			Handler:    _User_GetUserInfo_Handler,
+		},
+		{
+			MethodName: "CreateSysUser",
+			Handler:    _User_CreateSysUser_Handler,
+		},
+		{
+			MethodName: "ListSysUser",
+			Handler:    _User_ListSysUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

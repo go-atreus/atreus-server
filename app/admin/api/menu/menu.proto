@@ -3,6 +3,7 @@ package atreus.menu;
 option go_package = "github.com/go-atreus/protocol/menu";
 
 import "google/api/annotations.proto";
+import "options/gorm.proto";
 
 message getMenuReq {
   string secret = 1;
@@ -14,21 +15,70 @@ message getMenuResp {
   int64  expireTimeSeconds = 3;
 }
 
+message SysMenu{
+  option (gorm.opts) = {
+    ormable: true,
+    table: "sys_menus"
+  };
+  // 菜单ID
+  int32 id = 1 [(gorm.field).tag ={primary_key: true auto_increment: true type: "integer"}];
+  // 父级ID
+  int32 parentId = 2;
+  // 菜单名称
+  string title = 3;
+  // 菜单名称
+  string i18nTitle = 4;
+  // 菜单图标
+  string icon = 5;
+  // 授权标识
+  string permission = 6;
+  // 路由地址
+  string path = 7;
+  // 打开方式 (1组件 2内链 3外链)
+  int32 targetType = 8;
+  // 定位标识 (打开方式为组件时其值为组件相对路径，其他为URL地址)
+  string uri = 9;
+  // 显示排序
+  int32 sort = 10;
+  // 组件缓存：0-开启，1-关闭
+  int32 keepAlive = 11;
+  // 隐藏菜单: 0-否，1-是
+  int32 hidden = 12;
+  // 菜单类型 （0目录，1菜单，2按钮）
+  int32 type = 13;
+  // 备注信息
+  string remarks = 14;
+  // 创建时间
+  string createTime = 15;
+  // 更新时间
+  string updateTime = 16;
+  // 子级
+  repeated SysMenu children = 17;
+}
+
 message menu{
   string name = 1;
   string icon = 2;
   repeated menu children = 3;
 }
 
+message ListSysMenuResp{
+  repeated SysMenu results = 1;
+}
+
 service Menu {
+  option (gorm.server).autogen = true;
   //获取菜单树
-  rpc getMenu(getMenuReq) returns(getMenuResp){
-    option (google.api.http) = {post: "/menu/getMenu", body: "*"};
+  rpc GetMenu(getMenuReq) returns(getMenuResp){
+    option (google.api.http) = {post: "/system/menu/getMenu", body: "*"};
   };
   //分页获取基础menu列表
-  rpc getMenuList(getMenuReq) returns(getMenuResp){
-    option (google.api.http) = {post: "/menu/getMenuList", body: "*"};
+  rpc ListSysMenu(getMenuReq) returns(ListSysMenuResp){
+    option (google.api.http) = {post: "/system/menu/list", body: "*"};
   };
+  rpc CreateSysMenu(SysMenu) returns(SysMenu){
+    option (google.api.http) = {post: "/system/menu/create", body: "*"};
+  }
 
 }
 

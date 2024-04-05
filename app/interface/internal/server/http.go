@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-atreus/atreus-server/app/admin/api/auth"
 	"github.com/go-atreus/atreus-server/app/admin/api/menu"
+	"github.com/go-atreus/atreus-server/app/admin/api/role"
 	"github.com/go-atreus/atreus-server/app/admin/api/user"
 	"github.com/go-atreus/atreus-server/app/interface/internal/conf"
 	"github.com/go-atreus/atreus-server/app/interface/internal/service"
@@ -83,6 +84,7 @@ func NewHTTPServer(
 	user.RegisterUserHTTPServer(httpSrv, adminInterface)
 	auth.RegisterAuthHTTPServer(httpSrv, adminInterface)
 	menu.RegisterMenuHTTPServer(httpSrv, adminInterface)
+	role.RegisterRoleHTTPServer(httpSrv, adminInterface)
 	httpSrv.HandlePrefix("/", r)
 	return httpSrv
 }

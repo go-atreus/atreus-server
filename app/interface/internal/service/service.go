@@ -5,6 +5,7 @@ import (
 	admin "github.com/go-atreus/atreus-server/app/admin/api"
 	"github.com/go-atreus/atreus-server/app/admin/api/auth"
 	"github.com/go-atreus/atreus-server/app/admin/api/menu"
+	"github.com/go-atreus/atreus-server/app/admin/api/role"
 	"github.com/go-atreus/atreus-server/app/admin/api/user"
 	"github.com/go-atreus/atreus-server/app/interface/internal/conf"
 	"github.com/go-atreus/tools/http2rpc"
@@ -26,6 +27,7 @@ type AdminInterface struct {
 	*user.UserImpl
 	*auth.AuthImpl
 	*menu.MenuImpl
+	*role.RoleImpl
 
 	log *log.Helper
 }
@@ -58,5 +60,6 @@ func NewAdminInterface(logger log.Logger, authConfig *conf.Auth, dis registry.Di
 		UserImpl: user.NewUserImpl(conn),
 		AuthImpl: auth.NewAuthImpl(conn),
 		MenuImpl: menu.NewMenuImpl(conn),
+		RoleImpl: role.NewRoleImpl(conn),
 	}
 }

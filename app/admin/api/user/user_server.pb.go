@@ -8,6 +8,7 @@ package user
 import (
 	context "context"
 	grpc "google.golang.org/grpc"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,6 +24,14 @@ func NewUserImpl(conn *grpc.ClientConn) *UserImpl {
 	return &UserImpl{cc: NewUserClient(conn)}
 }
 
-func (c *UserImpl) GetUserInfo(ctx context.Context, in *UserInfoReq) (*UserInfoResp, error) {
+func (c *UserImpl) GetUserInfo(ctx context.Context, in *UserInfoReq) (*SysUser, error) {
 	return c.cc.GetUserInfo(ctx, in)
+}
+
+func (c *UserImpl) CreateSysUser(ctx context.Context, in *SysUser) (*SysUser, error) {
+	return c.cc.CreateSysUser(ctx, in)
+}
+
+func (c *UserImpl) ListSysUser(ctx context.Context, in *emptypb.Empty) (*ListUser, error) {
+	return c.cc.ListSysUser(ctx, in)
 }

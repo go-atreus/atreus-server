@@ -4,29 +4,43 @@ go 1.22.1
 
 require (
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-atreus/protocol v0.0.0-20240401155835-de4108038335
+	github.com/go-atreus/tools v0.0.0-20240402115113-5c8d1346b6b1
+	github.com/go-kratos/kratos/contrib/registry/zookeeper/v2 v2.0.0-20240322155018-41971ffa647a
 	github.com/go-kratos/kratos/v2 v2.7.3
+	github.com/go-zookeeper/zk v1.0.3
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/wire v0.6.0
+	github.com/infobloxopen/protoc-gen-gorm v1.1.4
+	go.opentelemetry.io/otel/sdk v1.16.0
+	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80
+	google.golang.org/genproto/googleapis/api v0.0.0-20240318140521-94a12d6c2237
 	google.golang.org/grpc v1.62.1
+	google.golang.org/protobuf v1.33.0
+	gorm.io/gorm v1.25.9
 )
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/go-kratos/kratos/contrib/registry/zookeeper/v2 v2.0.0-20240322155018-41971ffa647a // indirect
+	github.com/go-kratos/aegis v0.2.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/form/v4 v4.2.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
-	github.com/go-zookeeper/zk v1.0.3 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gorilla/mux v1.8.1 // indirect
+	github.com/imdario/mergo v0.3.16 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/kr/text v0.2.0 // indirect
@@ -39,7 +53,6 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	go.opentelemetry.io/otel v1.16.0 // indirect
 	go.opentelemetry.io/otel/metric v1.16.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.16.0 // indirect
 	go.opentelemetry.io/otel/trace v1.16.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
@@ -47,7 +60,7 @@ require (
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80 // indirect
-	google.golang.org/protobuf v1.32.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240314234333-6e1732d8331c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/driver/mysql v1.5.6 // indirect
 )
