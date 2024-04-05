@@ -2,7 +2,9 @@ package data
 
 import (
 	"database/sql"
+	"github.com/go-atreus/atreus-server/app/admin/api/dict"
 	"github.com/go-atreus/atreus-server/app/admin/api/menu"
+	"github.com/go-atreus/atreus-server/app/admin/api/organization"
 	"github.com/go-atreus/atreus-server/app/admin/api/role"
 	"github.com/go-atreus/atreus-server/app/admin/api/user"
 	zookeeper "github.com/go-kratos/kratos/contrib/registry/zookeeper/v2"
@@ -70,6 +72,8 @@ func NewData(logger log.Logger) *Data {
 	err = orm.AutoMigrate(
 		&user.SysUserORM{},
 		&menu.SysMenuORM{},
+		&dict.SysDictORM{},
+		&organization.SysOrganizationORM{},
 		&role.SysRoleORM{})
 	if err != nil {
 		panic(err)

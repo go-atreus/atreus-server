@@ -504,30 +504,30 @@ type RoleSysRoleWithAfterCreateSysRole interface {
 	AfterCreateSysRole(context.Context, *SysRole, *gorm.DB) error
 }
 
-// Update ...
-func (m *RoleDefaultServer) Update(ctx context.Context, in *SysRole) (*SysRole, error) {
+// UpdateRole ...
+func (m *RoleDefaultServer) UpdateRole(ctx context.Context, in *SysRole) (*SysRole, error) {
 	out := &SysRole{}
 	return out, nil
 }
 
-// Delete ...
-func (m *RoleDefaultServer) Delete(ctx context.Context, in *SysRole) (*emptypb.Empty, error) {
+// DeleteRole ...
+func (m *RoleDefaultServer) DeleteRole(ctx context.Context, in *SysRole) (*emptypb.Empty, error) {
 	out := &emptypb.Empty{}
 	return out, nil
 }
 
-// Get ...
-func (m *RoleDefaultServer) Get(ctx context.Context, in *SysRole) (*SysRole, error) {
+// GetRole ...
+func (m *RoleDefaultServer) GetRole(ctx context.Context, in *SysRole) (*SysRole, error) {
 	out := &SysRole{}
 	return out, nil
 }
 
-// List ...
-func (m *RoleDefaultServer) List(ctx context.Context, in *emptypb.Empty) (*ListRole, error) {
+// ListRole ...
+func (m *RoleDefaultServer) ListRole(ctx context.Context, in *emptypb.Empty) (*ListRoleResp, error) {
 	db := m.DB
-	if custom, ok := interface{}(in).(RoleSysRoleWithBeforeList); ok {
+	if custom, ok := interface{}(in).(RoleSysRoleWithBeforeListRole); ok {
 		var err error
-		if db, err = custom.BeforeList(ctx, db); err != nil {
+		if db, err = custom.BeforeListRole(ctx, db); err != nil {
 			return nil, err
 		}
 	}
@@ -535,22 +535,22 @@ func (m *RoleDefaultServer) List(ctx context.Context, in *emptypb.Empty) (*ListR
 	if err != nil {
 		return nil, err
 	}
-	out := &ListRole{Results: res}
-	if custom, ok := interface{}(in).(RoleSysRoleWithAfterList); ok {
+	out := &ListRoleResp{Results: res}
+	if custom, ok := interface{}(in).(RoleSysRoleWithAfterListRole); ok {
 		var err error
-		if err = custom.AfterList(ctx, out, db); err != nil {
+		if err = custom.AfterListRole(ctx, out, db); err != nil {
 			return nil, err
 		}
 	}
 	return out, nil
 }
 
-// RoleSysRoleWithBeforeList called before DefaultListSysRole in the default List handler
-type RoleSysRoleWithBeforeList interface {
-	BeforeList(context.Context, *gorm.DB) (*gorm.DB, error)
+// RoleSysRoleWithBeforeListRole called before DefaultListRoleSysRole in the default ListRole handler
+type RoleSysRoleWithBeforeListRole interface {
+	BeforeListRole(context.Context, *gorm.DB) (*gorm.DB, error)
 }
 
-// RoleSysRoleWithAfterList called before DefaultListSysRole in the default List handler
-type RoleSysRoleWithAfterList interface {
-	AfterList(context.Context, *ListRole, *gorm.DB) error
+// RoleSysRoleWithAfterListRole called before DefaultListRoleSysRole in the default ListRole handler
+type RoleSysRoleWithAfterListRole interface {
+	AfterListRole(context.Context, *ListRoleResp, *gorm.DB) error
 }

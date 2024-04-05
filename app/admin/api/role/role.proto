@@ -32,7 +32,7 @@ message SysRole {
   int32 scopeType = 9;
 }
 
-message ListRole{
+message ListRoleResp{
   // Note repeated field and plural name 'results'
   repeated SysRole results = 1;
   user.PageInfo page_info = 2;
@@ -48,26 +48,26 @@ service Role {
     };
   };
   // 更新角色
-  rpc Update(SysRole) returns (SysRole) {
+  rpc UpdateRole(SysRole) returns (SysRole) {
     option (google.api.http) = {
       put: "/system/role/update"
       body: "*"
     };
   };
   // 删除角色
-  rpc Delete(SysRole) returns (google.protobuf.Empty) {
+  rpc DeleteRole(SysRole) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/system/role/delete"
     };
   };
   // 获取角色
-  rpc Get(SysRole) returns (SysRole) {
+  rpc GetRole(SysRole) returns (SysRole) {
     option (google.api.http) = {
       get: "/system/role/get"
     };
   };
   // 获取角色列表
-  rpc List(google.protobuf.Empty) returns (ListRole) {
+  rpc ListRole(google.protobuf.Empty) returns (ListRoleResp) {
     option (google.api.http) = {
       post: "/system/role/list",
       body: "*"

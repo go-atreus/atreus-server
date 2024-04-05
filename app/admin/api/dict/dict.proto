@@ -1,0 +1,151 @@
+syntax = "proto3";
+package atreus.dict;
+option go_package = "github.com/go-atreus/atreus-server/app/admin/api/dict;dict";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "options/gorm.proto";
+
+message SysDict{
+  option (gorm.opts) = {
+    ormable: true,
+    table: "sys_dicts"
+  };
+  /**
+   * 编号
+   */
+  int32 id = 1 [(gorm.field).tag = {primary_key: true auto_increment: true}];
+
+  /**
+   * 标识
+   */
+  string code = 2;
+
+  /**
+   * 名称
+   */
+  string title = 3;
+
+  /**
+   * Hash值
+   */
+  string hashCode = 4;
+
+  /**
+   * 备注
+   */
+  string remarks = 5;
+
+  /**
+   * 状态,1：启用 0：禁用
+   */
+  int32 status = 6;
+
+  /**
+   * 数据类型,1:int32 2:String 3:Boolean
+   */
+  int32 valueType = 7;
+
+  /**
+   * 逻辑删除标识，已删除:0，未删除：删除时间戳
+   */
+  string deleted = 8;
+
+  /**
+   * 创建时间
+   */
+  string createdAt = 9;
+
+  /**
+   * 更新时间
+   */
+  string updatedAt = 10;
+}
+
+message ListSysDictResp{
+  repeated SysDict results = 1;
+}
+
+message ValidHashResp{
+  repeated string results = 1;
+}
+
+message DictDataReq{
+  string dictCodes = 1;
+}
+
+message DictData{
+  string dictCode = 1;
+  string hashCode = 2;
+  // 1: 数字; 2: 字符串; 3: 布尔
+  int32 valueType = 3;
+  repeated SysDictDataItem dictItems = 4;
+  bool loading = 5;
+}
+
+message SysDictDataItem{
+  int32 id = 1;
+  // 文本值
+  string name = 2;
+  // 数据值
+  string value = 3;
+  // 附加属性值
+  //  SysDictItemAttributes attributes = 4;
+  // 真实数据
+  bytes realVal = 5;
+}
+
+message DictDataResp{
+  repeated DictData results = 1;
+}
+
+service Dict{
+  option (gorm.server).autogen = true;
+
+  rpc DictData(DictDataReq) returns (DictDataResp) {
+    option (google.api.http) = {
+      get: "/system/dict/data"
+    };
+  }
+
+  rpc DictValidHash(google.protobuf.Empty) returns (ValidHashResp){
+    option (google.api.http) = {
+      post: "/system/dict/invalid-hash",
+      body: "*"
+    };
+  }
+  // 创建字典
+  rpc Create(SysDict) returns (SysDict) {
+    option (google.api.http) = {
+      post: "/system/dict/create"
+      body: "*"
+    };
+  }
+  // 更新字典
+  rpc Update(SysDict) returns (SysDict) {
+    option (google.api.http) = {
+      put: "/dict"
+      body: "*"
+    };
+  }
+  // 删除字典
+  rpc Delete(SysDict) returns (SysDict) {
+    option (google.api.http) = {
+      delete: "/dict"
+    };
+  }
+  // 获取字典
+  rpc Get(SysDict) returns (SysDict) {
+    option (google.api.http) = {
+      get: "/dict"
+    };
+  }
+  // 获取字典列表
+  rpc List(SysDict) returns (ListSysDictResp) {
+    option (google.api.http) = {
+      post: "/system/dict/list",
+      body: "*"
+    };
+  }
+}

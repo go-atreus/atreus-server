@@ -28,18 +28,18 @@ func (c *RoleImpl) CreateSysRole(ctx context.Context, in *SysRole) (*SysRole, er
 	return c.cc.CreateSysRole(ctx, in)
 }
 
-func (c *RoleImpl) Update(ctx context.Context, in *SysRole) (*SysRole, error) {
-	return c.cc.Update(ctx, in)
+func (c *RoleImpl) UpdateRole(ctx context.Context, in *SysRole) (*SysRole, error) {
+	return c.cc.UpdateRole(ctx, in)
 }
 
-func (c *RoleImpl) Delete(ctx context.Context, in *SysRole) (*emptypb.Empty, error) {
-	return c.cc.Delete(ctx, in)
+func (c *RoleImpl) DeleteRole(ctx context.Context, in *SysRole) (*emptypb.Empty, error) {
+	return c.cc.DeleteRole(ctx, in)
 }
 
-func (c *RoleImpl) Get(ctx context.Context, in *SysRole) (*SysRole, error) {
-	return c.cc.Get(ctx, in)
+func (c *RoleImpl) GetRole(ctx context.Context, in *SysRole) (*SysRole, error) {
+	return c.cc.GetRole(ctx, in)
 }
 
-func (c *RoleImpl) List(ctx context.Context, in *emptypb.Empty) (*ListRole, error) {
-	return c.cc.List(ctx, in)
+func (c *RoleImpl) ListRole(ctx context.Context, in *emptypb.Empty) (*ListRoleResp, error) {
+	return c.cc.ListRole(ctx, in)
 }

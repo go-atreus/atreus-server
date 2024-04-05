@@ -3,7 +3,9 @@ package server
 import (
 	"context"
 	"github.com/go-atreus/atreus-server/app/admin/api/auth"
+	"github.com/go-atreus/atreus-server/app/admin/api/dict"
 	"github.com/go-atreus/atreus-server/app/admin/api/menu"
+	"github.com/go-atreus/atreus-server/app/admin/api/organization"
 	"github.com/go-atreus/atreus-server/app/admin/api/role"
 	"github.com/go-atreus/atreus-server/app/admin/api/user"
 	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
@@ -37,6 +39,8 @@ func NewWhiteListMatcher() selector.MatchFunc {
 func NewGRPCServer(logger log.Logger, bc *conf.Bootstrap, authConfig *conf.Auth,
 	userSvr *service.UserService,
 	roleSvr *service.RoleService,
+	dictSvr *service.DictService,
+	orgSvr *service.OrganizationService,
 	authSvr *service.AuthServer, menuSvr *service.MenuServer) *grpc.Server {
 
 	var opts = []grpc.ServerOption{
@@ -74,5 +78,7 @@ func NewGRPCServer(logger log.Logger, bc *conf.Bootstrap, authConfig *conf.Auth,
 	menu.RegisterMenuServer(svr, menuSvr)
 	user.RegisterUserServer(svr, userSvr)
 	role.RegisterRoleServer(svr, roleSvr)
+	organization.RegisterOrganizationServer(svr, orgSvr)
+	dict.RegisterDictServer(svr, dictSvr)
 	return svr
 }

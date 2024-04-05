@@ -4,7 +4,9 @@ import (
 	"context"
 	admin "github.com/go-atreus/atreus-server/app/admin/api"
 	"github.com/go-atreus/atreus-server/app/admin/api/auth"
+	"github.com/go-atreus/atreus-server/app/admin/api/dict"
 	"github.com/go-atreus/atreus-server/app/admin/api/menu"
+	"github.com/go-atreus/atreus-server/app/admin/api/organization"
 	"github.com/go-atreus/atreus-server/app/admin/api/role"
 	"github.com/go-atreus/atreus-server/app/admin/api/user"
 	"github.com/go-atreus/atreus-server/app/interface/internal/conf"
@@ -28,6 +30,8 @@ type AdminInterface struct {
 	*auth.AuthImpl
 	*menu.MenuImpl
 	*role.RoleImpl
+	*organization.OrganizationImpl
+	*dict.DictImpl
 
 	log *log.Helper
 }
@@ -56,10 +60,12 @@ func NewAdminInterface(logger log.Logger, authConfig *conf.Auth, dis registry.Di
 	}
 
 	return &AdminInterface{
-		log:      log.NewHelper(log.With(logger, "module", "service/interface")),
-		UserImpl: user.NewUserImpl(conn),
-		AuthImpl: auth.NewAuthImpl(conn),
-		MenuImpl: menu.NewMenuImpl(conn),
-		RoleImpl: role.NewRoleImpl(conn),
+		log:              log.NewHelper(log.With(logger, "module", "service/interface")),
+		UserImpl:         user.NewUserImpl(conn),
+		AuthImpl:         auth.NewAuthImpl(conn),
+		MenuImpl:         menu.NewMenuImpl(conn),
+		RoleImpl:         role.NewRoleImpl(conn),
+		OrganizationImpl: organization.NewOrganizationImpl(conn),
+		DictImpl:         dict.NewDictImpl(conn),
 	}
 }
