@@ -84,6 +84,11 @@ message DictData{
   bool loading = 5;
 }
 
+message SysDictItemAttributes{
+  string tagColor = 1;
+  string textColor = 2;
+}
+
 message SysDictDataItem{
   int32 id = 1;
   // 文本值
@@ -91,7 +96,7 @@ message SysDictDataItem{
   // 数据值
   string value = 3;
   // 附加属性值
-  //  SysDictItemAttributes attributes = 4;
+  SysDictItemAttributes attributes = 4;
   // 真实数据
   bytes realVal = 5;
 }
