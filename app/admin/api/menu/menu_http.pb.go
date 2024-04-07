@@ -33,7 +33,7 @@ type MenuHTTPServer interface {
 
 func RegisterMenuHTTPServer(s *http.Server, srv MenuHTTPServer) {
 	r := s.Route("/")
-	r.POST("/system/menu/getMenu", _Menu_GetMenu0_HTTP_Handler(srv))
+	r.POST("/system/menu/router", _Menu_GetMenu0_HTTP_Handler(srv))
 	r.POST("/system/menu/list", _Menu_ListSysMenu0_HTTP_Handler(srv))
 	r.POST("/system/menu/create", _Menu_CreateSysMenu0_HTTP_Handler(srv))
 }
@@ -133,7 +133,7 @@ func (c *MenuHTTPClientImpl) CreateSysMenu(ctx context.Context, in *SysMenu, opt
 
 func (c *MenuHTTPClientImpl) GetMenu(ctx context.Context, in *GetMenuReq, opts ...http.CallOption) (*GetMenuResp, error) {
 	var out GetMenuResp
-	pattern := "/system/menu/getMenu"
+	pattern := "/system/menu/router"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationMenuGetMenu))
 	opts = append(opts, http.PathTemplate(pattern))

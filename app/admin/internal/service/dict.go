@@ -28,6 +28,16 @@ func (m *DictService) DictValidHash(context.Context, *emptypb.Empty) (*dict.Vali
 
 func (m *DictService) DictData(ctx context.Context, in *dict.DictDataReq) (*dict.DictDataResp, error) {
 	switch in.DictCodes {
+	case "menu_type":
+		return &dict.DictDataResp{Results: []*dict.DictData{
+			{
+				DictCode: "menu_type",
+				DictItems: []*dict.SysDictDataItem{
+					{Value: "0", Name: "目录", Id: 1, Attributes: &dict.SysDictItemAttributes{TagColor: "orange"}},
+					{Value: "1", Name: "菜单", Id: 2, Attributes: &dict.SysDictItemAttributes{TagColor: "orange"}},
+					{Value: "2", Name: "按钮", Id: 3, Attributes: &dict.SysDictItemAttributes{TagColor: "green"}},
+				}},
+		}}, nil
 	case "role_type":
 		return &dict.DictDataResp{Results: []*dict.DictData{
 			{

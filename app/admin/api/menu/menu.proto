@@ -11,7 +11,7 @@ message getMenuReq {
   string userID = 3;
 }
 message getMenuResp {
-  repeated menu menus = 1;
+  repeated SysMenu routes = 1;
   int64  expireTimeSeconds = 3;
 }
 
@@ -70,7 +70,7 @@ service Menu {
   option (gorm.server).autogen = true;
   //获取菜单树
   rpc GetMenu(getMenuReq) returns(getMenuResp){
-    option (google.api.http) = {post: "/system/menu/getMenu", body: "*"};
+    option (google.api.http) = {post: "/system/menu/router", body: "*"};
   };
   //分页获取基础menu列表
   rpc ListSysMenu(getMenuReq) returns(ListSysMenuResp){
