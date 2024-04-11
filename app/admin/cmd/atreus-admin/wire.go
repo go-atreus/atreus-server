@@ -16,5 +16,5 @@ import (
 
 // initApp init application.
 func initApp(log.Logger, *tracesdk.TracerProvider, *conf.Bootstrap, *conf.Auth) (*kratos.App, func(), error) {
-	panic(wire.Build(service.ProviderSet, server.ProviderSet, data.ProviderSet, newApp))
+	panic(wire.Build(data.ProviderSet, service.ProviderSet, server.ProviderSet, newApp))
 }

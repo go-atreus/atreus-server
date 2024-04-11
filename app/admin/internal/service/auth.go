@@ -4,19 +4,17 @@ import (
 	context "context"
 	"errors"
 	"github.com/go-atreus/atreus-server/app/admin/api/auth"
-	"github.com/go-atreus/atreus-server/app/admin/api/user"
+	"github.com/go-atreus/atreus-server/app/admin/internal/biz"
 	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
-	"github.com/go-atreus/atreus-server/app/admin/internal/data"
 	"github.com/go-atreus/tools/utils"
 	"github.com/golang-jwt/jwt/v5"
-	"gorm.io/gorm"
 )
 
 var _ auth.AuthServer = (*AuthServer)(nil)
 
 type AuthServer struct {
-	config *conf.Auth
-	data   *data.Data
+	config   *conf.Auth
+	userRepo biz.UserRepo
 }
 
 func (s *AuthServer) UserLogin(ctx context.Context, req *auth.UserLoginReq) (res *auth.UserTokenResp, err error) {
@@ -26,18 +24,17 @@ func (s *AuthServer) UserLogin(ctx context.Context, req *auth.UserLoginReq) (res
 	if req.Username == "" || req.Password == "" {
 		return nil, errors.New("username or password is empty")
 	}
-	req.Password = utils.Md5(req.Password, s.config.PwdSecret)
-	var findUser user.SysUserORM
-	err = s.data.ORM.Where("username = ? AND password = ?", req.Username, req.Password).First(&findUser).Error
+	findUser, err := s.userRepo.FindByUsername(ctx, req.Username)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("用户名或密码错误")
-		}
-		return nil, err
+		return nil, errors.New("用户不存在")
+	}
+	req.Password = utils.Md5(req.Password, s.config.PwdSecret)
+	if req.Password != findUser.Password {
+		return nil, errors.New("密码错误")
 	}
 	// generate token
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": 1,
+		"user_id": findUser.Id,
 	})
 	signedString, err := claims.SignedString([]byte(s.config.Key))
 	if err != nil {
@@ -46,8 +43,8 @@ func (s *AuthServer) UserLogin(ctx context.Context, req *auth.UserLoginReq) (res
 	return &auth.UserTokenResp{Token: signedString}, nil
 }
 
-func NewAuthServer(config *conf.Auth, data *data.Data) *AuthServer {
-	return &AuthServer{config: config, data: data}
+func NewAuthServer(config *conf.Auth, userRepo biz.UserRepo) *AuthServer {
+	return &AuthServer{config: config, userRepo: userRepo}
 }
 
 func (s *AuthServer) UserToken(ctx context.Context, req *auth.UserTokenReq) (*auth.UserTokenResp, error) {
