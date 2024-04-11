@@ -22,8 +22,6 @@ import (
 	jwt2 "github.com/golang-jwt/jwt/v5"
 )
 
-const TestKey = "abc"
-
 func NewWhiteListMatcher() selector.MatchFunc {
 
 	whiteList := make(map[string]struct{})

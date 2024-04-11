@@ -25,7 +25,7 @@ func initApp(logger log.Logger, tracerProvider *trace.TracerProvider, bootstrap 
 	roleService := service.NewRoleService(logger, dataData)
 	dictService := service.NewDictService(logger, dataData)
 	organizationService := service.NewOrganization(logger, dataData)
-	authServer := service.NewAuthServer(auth)
+	authServer := service.NewAuthServer(auth, dataData)
 	menuServer := service.NewMenuServer(logger, dataData)
 	grpcServer := server.NewGRPCServer(logger, bootstrap, auth, userService, roleService, dictService, organizationService, authServer, menuServer)
 	registrar := data.NewRegistrar()

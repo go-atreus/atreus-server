@@ -7,6 +7,7 @@ import "google/api/annotations.proto";
 message userLoginReq{
   string username = 1;
   string password = 2;
+  string type = 3;
 }
 
 message userTokenReq {

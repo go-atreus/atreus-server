@@ -32,6 +32,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 	whiteList := make(map[string]struct{})
 	whiteList["/Atreus.auth.Auth/getUserToken"] = struct{}{}
 	whiteList["/atreus.auth.Auth/userLogin"] = struct{}{}
+	whiteList["/atreus.auth.Auth/forceLogout"] = struct{}{}
 	whiteList["/shop.interface.v1.ShopInterface/Register"] = struct{}{}
 	return func(ctx context.Context, operation string) bool {
 		if _, ok := whiteList[operation]; ok {

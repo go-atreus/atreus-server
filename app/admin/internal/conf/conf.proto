@@ -11,6 +11,7 @@ message Bootstrap {
 
 message Auth {
   string key = 1;
+  string pwd_secret = 2;
 }
 
 message Server {
