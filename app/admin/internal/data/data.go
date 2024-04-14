@@ -10,6 +10,7 @@ import (
 	zookeeper "github.com/go-kratos/kratos/contrib/registry/zookeeper/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/registry"
+	"github.com/go-redis/redis/v8"
 	"github.com/go-zookeeper/zk"
 	"github.com/google/wire"
 	"gorm.io/driver/mysql"
@@ -28,7 +29,8 @@ var ProviderSet = wire.NewSet(
 )
 
 type Data struct {
-	ORM *gorm.DB
+	ORM      *gorm.DB
+	redisCli redis.Cmdable
 }
 
 func NewData(logger log.Logger) *Data {
@@ -50,7 +52,7 @@ func NewData(logger log.Logger) *Data {
 
 	sqlDB, err := sql.Open(c.Database.Driver, c.Database.Source)
 	if err != nil {
-		log.Error("sql dsn(%v) error: %v", c.Database.Source, err)
+		//log.Error("sql dsn(%v) error: %v", c.Database.Source, err)
 		panic(err)
 	}
 	sqlDB.SetMaxIdleConns(int(c.Database.Idle))
