@@ -43,3 +43,7 @@ func (c *RoleImpl) GetRole(ctx context.Context, in *SysRole) (*SysRole, error) {
 func (c *RoleImpl) ListRole(ctx context.Context, in *emptypb.Empty) (*ListRoleResp, error) {
 	return c.cc.ListRole(ctx, in)
 }
+
+func (c *RoleImpl) RolePermissions(ctx context.Context, in *SysRole) (*ListRoleResp, error) {
+	return c.cc.RolePermissions(ctx, in)
+}

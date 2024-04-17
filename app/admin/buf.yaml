@@ -2,7 +2,7 @@ version: v1
 name: buf.build/atreus/admin
 deps:
   - buf.build/googleapis/googleapis
-  - buf.build/openim/api
+#  - buf.build/openim/api
 breaking:
   use:
     - FILE

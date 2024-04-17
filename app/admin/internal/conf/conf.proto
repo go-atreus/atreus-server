@@ -33,6 +33,9 @@ message Data {
   message Database {
     string driver = 1;
     string source = 2;
+    int32 idle = 3;
+    int32 active = 4;
+    string idleTimeout = 5;
   }
   message Redis {
     string network = 1;

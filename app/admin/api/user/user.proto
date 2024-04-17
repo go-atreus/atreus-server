@@ -5,6 +5,7 @@ option go_package = "github.com/go-atreus/atreus-server/app/admin/api/user;user"
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "options/gorm.proto";
+import "api/menu/menu.proto";
 
 message userInfoReq {
   string secret = 1;
@@ -32,7 +33,10 @@ message SysUser {
   string unreadCount = 11;
   string country = 12;
   string access = 13;
+  repeated string permissions = 15 [(gorm.field).drop = true];
+  repeated string roles = 16 [(gorm.field).drop = true];
 }
+
 
 message forceLogoutReq {
   int32  platformID = 1;

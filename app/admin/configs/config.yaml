@@ -8,9 +8,12 @@ server:
 data:
   database:
     driver: mysql
-    source: root:root@tcp(127.0.0.1:3306)/test?parseTime=True&loc=Local
+    source: root:root@tcp(127.0.0.1:3306)/atreus?charset=utf8mb4&parseTime=True&loc=Local
+    idle: 10
+    active: 10
+    idleTimeout: "10s"
   redis:
-    addr: 127.0.0.1:6379
+    addr: 127.0.0.1:16379
     read_timeout: 0.2s
     write_timeout: 0.2s
 auth:

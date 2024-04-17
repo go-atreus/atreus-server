@@ -554,3 +554,9 @@ type RoleSysRoleWithBeforeListRole interface {
 type RoleSysRoleWithAfterListRole interface {
 	AfterListRole(context.Context, *ListRoleResp, *gorm.DB) error
 }
+
+// RolePermissions ...
+func (m *RoleDefaultServer) RolePermissions(ctx context.Context, in *SysRole) (*ListRoleResp, error) {
+	out := &ListRoleResp{}
+	return out, nil
+}

@@ -10,6 +10,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,12 +22,14 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationMenuCreateSysMenu = "/atreus.menu.Menu/CreateSysMenu"
 const OperationMenuGetMenu = "/atreus.menu.Menu/GetMenu"
+const OperationMenuGrantList = "/atreus.menu.Menu/GrantList"
 const OperationMenuListSysMenu = "/atreus.menu.Menu/ListSysMenu"
 
 type MenuHTTPServer interface {
 	CreateSysMenu(context.Context, *SysMenu) (*SysMenu, error)
 	// GetMenu获取菜单树
 	GetMenu(context.Context, *GetMenuReq) (*GetMenuResp, error)
+	GrantList(context.Context, *emptypb.Empty) (*ListSysMenuResp, error)
 	// ListSysMenu分页获取基础menu列表
 	ListSysMenu(context.Context, *GetMenuReq) (*ListSysMenuResp, error)
 }
@@ -36,6 +39,7 @@ func RegisterMenuHTTPServer(s *http.Server, srv MenuHTTPServer) {
 	r.POST("/system/menu/router", _Menu_GetMenu0_HTTP_Handler(srv))
 	r.POST("/system/menu/list", _Menu_ListSysMenu0_HTTP_Handler(srv))
 	r.POST("/system/menu/create", _Menu_CreateSysMenu0_HTTP_Handler(srv))
+	r.GET("/system/menu/grant-list", _Menu_GrantList0_HTTP_Handler(srv))
 }
 
 func _Menu_GetMenu0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
@@ -104,9 +108,29 @@ func _Menu_CreateSysMenu0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context
 	}
 }
 
+func _Menu_GrantList0_HTTP_Handler(srv MenuHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationMenuGrantList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GrantList(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListSysMenuResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type MenuHTTPClient interface {
 	CreateSysMenu(ctx context.Context, req *SysMenu, opts ...http.CallOption) (rsp *SysMenu, err error)
 	GetMenu(ctx context.Context, req *GetMenuReq, opts ...http.CallOption) (rsp *GetMenuResp, err error)
+	GrantList(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *ListSysMenuResp, err error)
 	ListSysMenu(ctx context.Context, req *GetMenuReq, opts ...http.CallOption) (rsp *ListSysMenuResp, err error)
 }
 
@@ -138,6 +162,19 @@ func (c *MenuHTTPClientImpl) GetMenu(ctx context.Context, in *GetMenuReq, opts .
 	opts = append(opts, http.Operation(OperationMenuGetMenu))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *MenuHTTPClientImpl) GrantList(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*ListSysMenuResp, error) {
+	var out ListSysMenuResp
+	pattern := "/system/menu/grant-list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationMenuGrantList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@ import (
 	fmt "fmt"
 	errors "github.com/infobloxopen/protoc-gen-gorm/errors"
 	field_mask "google.golang.org/genproto/protobuf/field_mask"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	gorm "gorm.io/gorm"
 )
 
@@ -626,4 +627,10 @@ type MenuSysMenuWithBeforeCreateSysMenu interface {
 // MenuSysMenuWithAfterCreateSysMenu called before DefaultCreateSysMenuSysMenu in the default CreateSysMenu handler
 type MenuSysMenuWithAfterCreateSysMenu interface {
 	AfterCreateSysMenu(context.Context, *SysMenu, *gorm.DB) error
+}
+
+// GrantList ...
+func (m *MenuDefaultServer) GrantList(ctx context.Context, in *emptypb.Empty) (*ListSysMenuResp, error) {
+	out := &ListSysMenuResp{}
+	return out, nil
 }

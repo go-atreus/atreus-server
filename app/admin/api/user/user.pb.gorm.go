@@ -444,6 +444,14 @@ func DefaultApplyFieldMaskSysUser(ctx context.Context, patchee *SysUser, patcher
 			patchee.Access = patcher.Access
 			continue
 		}
+		if f == prefix+"Permissions" {
+			patchee.Permissions = patcher.Permissions
+			continue
+		}
+		if f == prefix+"Roles" {
+			patchee.Roles = patcher.Roles
+			continue
+		}
 	}
 	if err != nil {
 		return nil, err

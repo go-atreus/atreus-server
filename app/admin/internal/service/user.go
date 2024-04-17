@@ -21,13 +21,15 @@ type UserService struct {
 	user.UserDefaultServer
 }
 
-func (UserService) GetUserInfo(ctx context.Context, req *user.UserInfoReq) (*user.SysUser, error) {
+func (u UserService) GetUserInfo(ctx context.Context, req *user.UserInfoReq) (*user.SysUser, error) {
 	var sub float64
 	if claims, ok := jwt.FromContext(ctx); ok {
 		sub = claims.(jwt2.MapClaims)["user_id"].(float64)
 	}
-	return &user.SysUser{Id: int32(sub),
-		NickName: "admin",
-		Avatar:   "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png",
+	return &user.SysUser{
+		Id:          int32(sub),
+		NickName:    "admin",
+		Avatar:      "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png",
+		Permissions: []string{"system:role:grant"},
 	}, nil
 }

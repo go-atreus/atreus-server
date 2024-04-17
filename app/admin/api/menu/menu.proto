@@ -1,9 +1,10 @@
 syntax = "proto3";
 package atreus.menu;
-option go_package = "github.com/go-atreus/protocol/menu";
+option go_package = "github.com/go-atreus/atreus-server/app/admin/api/menu";
 
 import "google/api/annotations.proto";
 import "options/gorm.proto";
+import "google/protobuf/empty.proto";
 
 message getMenuReq {
   string secret = 1;
@@ -21,7 +22,7 @@ message SysMenu{
     table: "sys_menus"
   };
   // 菜单ID
-  int32 id = 1 [(gorm.field).tag ={primary_key: true auto_increment: true type: "integer"}];
+  int32 id = 1 [(gorm.field).tag = {primary_key: true auto_increment: true type: "integer"}];
   // 父级ID
   int32 parentId = 2;
   // 菜单名称
@@ -79,6 +80,8 @@ service Menu {
   rpc CreateSysMenu(SysMenu) returns(SysMenu){
     option (google.api.http) = {post: "/system/menu/create", body: "*"};
   }
-
+  rpc GrantList(google.protobuf.Empty) returns(ListSysMenuResp){
+    option (google.api.http) = {get: "/system/menu/grant-list"};
+  }
 }
 

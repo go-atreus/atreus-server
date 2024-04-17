@@ -5,22 +5,34 @@ import (
 	"github.com/go-atreus/atreus-server/app/admin/api/menu"
 	"github.com/go-atreus/atreus-server/app/admin/internal/data"
 	"github.com/go-kratos/kratos/v2/log"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-var _ menu.MenuServer = (*MenuServer)(nil)
+var _ menu.MenuServer = (*MenuService)(nil)
 
-type MenuServer struct {
+type MenuService struct {
 	menu.MenuDefaultServer
 }
 
-func NewMenuServer(logger log.Logger, data *data.Data) *MenuServer {
-	return &MenuServer{
+func NewMenuServer(logger log.Logger, data *data.Data) *MenuService {
+	return &MenuService{
 		MenuDefaultServer: menu.MenuDefaultServer{DB: data.ORM},
 	}
 
 }
 
-func (m *MenuServer) GetMenu(ctx context.Context, req *menu.GetMenuReq) (res *menu.GetMenuResp, err error) {
+func (m *MenuService) GrantList(ctx context.Context, in *emptypb.Empty) (res *menu.ListSysMenuResp, err error) {
+	out := &menu.ListSysMenuResp{}
+
+	sysMenu, err := m.MenuDefaultServer.ListSysMenu(ctx, &menu.GetMenuReq{})
+	if err != nil {
+		return
+	}
+	out.Results = sysMenu.Results
+	return out, nil
+}
+
+func (m *MenuService) GetMenu(ctx context.Context, req *menu.GetMenuReq) (res *menu.GetMenuResp, err error) {
 	sysMenu, err := m.MenuDefaultServer.ListSysMenu(ctx, req)
 	if err != nil {
 		return

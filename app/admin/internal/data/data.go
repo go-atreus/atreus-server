@@ -1,12 +1,14 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"github.com/go-atreus/atreus-server/app/admin/api/dict"
 	"github.com/go-atreus/atreus-server/app/admin/api/menu"
 	"github.com/go-atreus/atreus-server/app/admin/api/organization"
 	"github.com/go-atreus/atreus-server/app/admin/api/role"
 	"github.com/go-atreus/atreus-server/app/admin/api/user"
+	"github.com/go-atreus/atreus-server/app/admin/internal/conf"
 	zookeeper "github.com/go-kratos/kratos/contrib/registry/zookeeper/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/registry"
@@ -26,38 +28,40 @@ var ProviderSet = wire.NewSet(
 	NewRegistrar,
 	NewData,
 	NewUserRepo,
+	NewOrm,
+	NewRedisCmd,
 )
 
 type Data struct {
+	log      *log.Helper
 	ORM      *gorm.DB
 	redisCli redis.Cmdable
 }
 
-func NewData(logger log.Logger) *Data {
-	type source struct {
-		Database struct {
-			Driver      string
-			Source      string
-			Idle        int
-			Active      int
-			IdleTimeout string
-		}
-	}
-	c := &source{}
-	c.Database.Driver = "mysql"
-	c.Database.Source = "root:root@tcp(127.0.0.1:3306)/atreus?charset=utf8mb4&parseTime=True&loc=Local"
-	c.Database.Idle = 10
-	c.Database.Active = 10
-	c.Database.IdleTimeout = "10s"
+// NewData .
+func NewData(orm *gorm.DB, redisCmd redis.Cmdable, logger log.Logger) (*Data, func(), error) {
+	log := log.NewHelper(log.With(logger, "module", "user-service/data"))
 
-	sqlDB, err := sql.Open(c.Database.Driver, c.Database.Source)
-	if err != nil {
-		//log.Error("sql dsn(%v) error: %v", c.Database.Source, err)
-		panic(err)
+	d := &Data{
+		ORM:      orm,
+		redisCli: redisCmd,
+		log:      log,
 	}
-	sqlDB.SetMaxIdleConns(int(c.Database.Idle))
-	sqlDB.SetMaxOpenConns(int(c.Database.Active))
-	idleTimeout, _ := time.ParseDuration(c.Database.IdleTimeout)
+	return d, func() {
+	}, nil
+}
+
+func NewOrm(logger log.Logger, bootstrap *conf.Bootstrap) *gorm.DB {
+	log := log.NewHelper(log.With(logger, "module", "data"))
+	dataConf := bootstrap.Data
+
+	sqlDB, err := sql.Open(dataConf.Database.Driver, dataConf.Database.Source)
+	if err != nil {
+		log.Fatalf("sql dsn(%v) error: %v", dataConf.Database.Source, err)
+	}
+	sqlDB.SetMaxIdleConns(int(dataConf.Database.Idle))
+	sqlDB.SetMaxOpenConns(int(dataConf.Database.Active))
+	idleTimeout, _ := time.ParseDuration(dataConf.Database.IdleTimeout)
 	sqlDB.SetConnMaxLifetime(idleTimeout)
 
 	orm, err := gorm.Open(mysql.New(mysql.Config{
@@ -67,8 +71,7 @@ func NewData(logger log.Logger) *Data {
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
-		log.Errorf("db dsn(%v) error: %v", c.Database.Source, err)
-		panic(err)
+		log.Fatalf("db dsn(%v) error: %v", dataConf.Database.Source, err)
 	}
 
 	// migrate
@@ -79,10 +82,30 @@ func NewData(logger log.Logger) *Data {
 		&organization.SysOrganizationORM{},
 		&role.SysRoleORM{})
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	return &Data{ORM: orm}
+	return orm
+}
+
+func NewRedisCmd(conf *conf.Data, logger log.Logger) redis.Cmdable {
+	log := log.NewHelper(log.With(logger, "module", "data/redis"))
+	client := redis.NewClient(&redis.Options{
+		Addr:         conf.Redis.Addr,
+		Password:     "openIM123",
+		Username:     "",
+		ReadTimeout:  conf.Redis.ReadTimeout.AsDuration(),
+		WriteTimeout: conf.Redis.WriteTimeout.AsDuration(),
+		DialTimeout:  time.Second * 2,
+		PoolSize:     10,
+	})
+	timeout, cancelFunc := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancelFunc()
+	err := client.Ping(timeout).Err()
+	if err != nil {
+		log.Fatalf("redis connect error: %v", err)
+	}
+	return client
 }
 
 func NewDiscovery() registry.Discovery {

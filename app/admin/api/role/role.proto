@@ -73,4 +73,7 @@ service Role {
       body: "*"
     };
   }
+  rpc RolePermissions(SysRole) returns(ListRoleResp){
+    option (google.api.http) = {get: "/system/permission/code/{code}"};
+  }
 }

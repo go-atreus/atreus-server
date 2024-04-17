@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,6 +23,7 @@ const (
 	Menu_GetMenu_FullMethodName       = "/atreus.menu.Menu/GetMenu"
 	Menu_ListSysMenu_FullMethodName   = "/atreus.menu.Menu/ListSysMenu"
 	Menu_CreateSysMenu_FullMethodName = "/atreus.menu.Menu/CreateSysMenu"
+	Menu_GrantList_FullMethodName     = "/atreus.menu.Menu/GrantList"
 )
 
 // MenuClient is the client API for Menu service.
@@ -33,6 +35,7 @@ type MenuClient interface {
 	// 分页获取基础menu列表
 	ListSysMenu(ctx context.Context, in *GetMenuReq, opts ...grpc.CallOption) (*ListSysMenuResp, error)
 	CreateSysMenu(ctx context.Context, in *SysMenu, opts ...grpc.CallOption) (*SysMenu, error)
+	GrantList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListSysMenuResp, error)
 }
 
 type menuClient struct {
@@ -70,6 +73,15 @@ func (c *menuClient) CreateSysMenu(ctx context.Context, in *SysMenu, opts ...grp
 	return out, nil
 }
 
+func (c *menuClient) GrantList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListSysMenuResp, error) {
+	out := new(ListSysMenuResp)
+	err := c.cc.Invoke(ctx, Menu_GrantList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MenuServer is the server API for Menu service.
 // All implementations should embed UnimplementedMenuServer
 // for forward compatibility
@@ -79,6 +91,7 @@ type MenuServer interface {
 	// 分页获取基础menu列表
 	ListSysMenu(context.Context, *GetMenuReq) (*ListSysMenuResp, error)
 	CreateSysMenu(context.Context, *SysMenu) (*SysMenu, error)
+	GrantList(context.Context, *emptypb.Empty) (*ListSysMenuResp, error)
 }
 
 // UnimplementedMenuServer should be embedded to have forward compatible implementations.
@@ -93,6 +106,9 @@ func (UnimplementedMenuServer) ListSysMenu(context.Context, *GetMenuReq) (*ListS
 }
 func (UnimplementedMenuServer) CreateSysMenu(context.Context, *SysMenu) (*SysMenu, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSysMenu not implemented")
+}
+func (UnimplementedMenuServer) GrantList(context.Context, *emptypb.Empty) (*ListSysMenuResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GrantList not implemented")
 }
 
 // UnsafeMenuServer may be embedded to opt out of forward compatibility for this service.
@@ -160,6 +176,24 @@ func _Menu_CreateSysMenu_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Menu_GrantList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MenuServer).GrantList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Menu_GrantList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MenuServer).GrantList(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Menu_ServiceDesc is the grpc.ServiceDesc for Menu service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -178,6 +212,10 @@ var Menu_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateSysMenu",
 			Handler:    _Menu_CreateSysMenu_Handler,
+		},
+		{
+			MethodName: "GrantList",
+			Handler:    _Menu_GrantList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

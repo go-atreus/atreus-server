@@ -39,7 +39,7 @@ func NewGRPCServer(logger log.Logger, bc *conf.Bootstrap, authConfig *conf.Auth,
 	roleSvr *service.RoleService,
 	dictSvr *service.DictService,
 	orgSvr *service.OrganizationService,
-	authSvr *service.AuthServer, menuSvr *service.MenuServer) *grpc.Server {
+	authSvr *service.AuthServer, menuSvr *service.MenuService) *grpc.Server {
 
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(

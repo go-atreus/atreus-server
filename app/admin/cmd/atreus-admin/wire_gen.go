@@ -19,8 +19,13 @@ import (
 // Injectors from wire.go:
 
 // initApp init application.
-func initApp(logger log.Logger, tracerProvider *trace.TracerProvider, bootstrap *conf.Bootstrap, auth *conf.Auth) (*kratos.App, func(), error) {
-	dataData := data.NewData(logger)
+func initApp(logger log.Logger, tracerProvider *trace.TracerProvider, bootstrap *conf.Bootstrap, auth *conf.Auth, confData *conf.Data) (*kratos.App, func(), error) {
+	db := data.NewOrm(logger, bootstrap)
+	cmdable := data.NewRedisCmd(confData, logger)
+	dataData, cleanup, err := data.NewData(db, cmdable, logger)
+	if err != nil {
+		return nil, nil, err
+	}
 	userService := service.NewUserServer(logger, dataData)
 	roleService := service.NewRoleService(logger, dataData)
 	dictService := service.NewDictService(logger, dataData)
@@ -32,5 +37,6 @@ func initApp(logger log.Logger, tracerProvider *trace.TracerProvider, bootstrap 
 	registrar := data.NewRegistrar()
 	app := newApp(logger, grpcServer, registrar)
 	return app, func() {
+		cleanup()
 	}, nil
 }

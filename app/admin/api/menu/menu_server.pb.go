@@ -8,6 +8,7 @@ package menu
 import (
 	context "context"
 	grpc "google.golang.org/grpc"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -33,4 +34,8 @@ func (c *MenuImpl) ListSysMenu(ctx context.Context, in *GetMenuReq) (*ListSysMen
 
 func (c *MenuImpl) CreateSysMenu(ctx context.Context, in *SysMenu) (*SysMenu, error) {
 	return c.cc.CreateSysMenu(ctx, in)
+}
+
+func (c *MenuImpl) GrantList(ctx context.Context, in *emptypb.Empty) (*ListSysMenuResp, error) {
+	return c.cc.GrantList(ctx, in)
 }
