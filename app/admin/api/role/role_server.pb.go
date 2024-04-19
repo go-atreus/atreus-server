@@ -44,6 +44,6 @@ func (c *RoleImpl) ListRole(ctx context.Context, in *emptypb.Empty) (*ListRoleRe
 	return c.cc.ListRole(ctx, in)
 }
 
-func (c *RoleImpl) RolePermissions(ctx context.Context, in *SysRole) (*ListRoleResp, error) {
+func (c *RoleImpl) RolePermissions(ctx context.Context, in *SysRole) (*RoleMenu, error) {
 	return c.cc.RolePermissions(ctx, in)
 }

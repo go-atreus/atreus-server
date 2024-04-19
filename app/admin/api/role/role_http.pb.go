@@ -36,7 +36,7 @@ type RoleHTTPServer interface {
 	GetRole(context.Context, *SysRole) (*SysRole, error)
 	// ListRole 获取角色列表
 	ListRole(context.Context, *emptypb.Empty) (*ListRoleResp, error)
-	RolePermissions(context.Context, *SysRole) (*ListRoleResp, error)
+	RolePermissions(context.Context, *SysRole) (*RoleMenu, error)
 	// UpdateRole 更新角色
 	UpdateRole(context.Context, *SysRole) (*SysRole, error)
 }
@@ -172,7 +172,7 @@ func _Role_RolePermissions0_HTTP_Handler(srv RoleHTTPServer) func(ctx http.Conte
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListRoleResp)
+		reply := out.(*RoleMenu)
 		return ctx.Result(200, reply)
 	}
 }
@@ -182,7 +182,7 @@ type RoleHTTPClient interface {
 	DeleteRole(ctx context.Context, req *SysRole, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	GetRole(ctx context.Context, req *SysRole, opts ...http.CallOption) (rsp *SysRole, err error)
 	ListRole(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *ListRoleResp, err error)
-	RolePermissions(ctx context.Context, req *SysRole, opts ...http.CallOption) (rsp *ListRoleResp, err error)
+	RolePermissions(ctx context.Context, req *SysRole, opts ...http.CallOption) (rsp *RoleMenu, err error)
 	UpdateRole(ctx context.Context, req *SysRole, opts ...http.CallOption) (rsp *SysRole, err error)
 }
 
@@ -246,8 +246,8 @@ func (c *RoleHTTPClientImpl) ListRole(ctx context.Context, in *emptypb.Empty, op
 	return &out, nil
 }
 
-func (c *RoleHTTPClientImpl) RolePermissions(ctx context.Context, in *SysRole, opts ...http.CallOption) (*ListRoleResp, error) {
-	var out ListRoleResp
+func (c *RoleHTTPClientImpl) RolePermissions(ctx context.Context, in *SysRole, opts ...http.CallOption) (*RoleMenu, error) {
+	var out RoleMenu
 	pattern := "/system/permission/code/{code}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRoleRolePermissions))

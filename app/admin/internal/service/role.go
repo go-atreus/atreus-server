@@ -19,7 +19,14 @@ type RoleService struct {
 	role.RoleDefaultServer
 }
 
-func (m *RoleService) RolePermissions(ctx context.Context, in *role.SysRole) (*role.ListRoleResp, error) {
-	out := &role.ListRoleResp{}
+func (m *RoleService) RolePermissions(ctx context.Context, in *role.SysRole) (res *role.RoleMenu, err error) {
+	out := &role.RoleMenu{}
+	var ret *role.SysRoleORM
+	if err = m.DB.Where("code = ?", in.Code).Preload("Menu").Find(&ret).Error; err != nil {
+		return
+	}
+	for _, menu := range ret.Menu {
+		out.Menus = append(out.Menus, menu.Id)
+	}
 	return out, nil
 }

@@ -42,7 +42,7 @@ type RoleClient interface {
 	GetRole(ctx context.Context, in *SysRole, opts ...grpc.CallOption) (*SysRole, error)
 	// 获取角色列表
 	ListRole(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListRoleResp, error)
-	RolePermissions(ctx context.Context, in *SysRole, opts ...grpc.CallOption) (*ListRoleResp, error)
+	RolePermissions(ctx context.Context, in *SysRole, opts ...grpc.CallOption) (*RoleMenu, error)
 }
 
 type roleClient struct {
@@ -98,8 +98,8 @@ func (c *roleClient) ListRole(ctx context.Context, in *emptypb.Empty, opts ...gr
 	return out, nil
 }
 
-func (c *roleClient) RolePermissions(ctx context.Context, in *SysRole, opts ...grpc.CallOption) (*ListRoleResp, error) {
-	out := new(ListRoleResp)
+func (c *roleClient) RolePermissions(ctx context.Context, in *SysRole, opts ...grpc.CallOption) (*RoleMenu, error) {
+	out := new(RoleMenu)
 	err := c.cc.Invoke(ctx, Role_RolePermissions_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -121,7 +121,7 @@ type RoleServer interface {
 	GetRole(context.Context, *SysRole) (*SysRole, error)
 	// 获取角色列表
 	ListRole(context.Context, *emptypb.Empty) (*ListRoleResp, error)
-	RolePermissions(context.Context, *SysRole) (*ListRoleResp, error)
+	RolePermissions(context.Context, *SysRole) (*RoleMenu, error)
 }
 
 // UnimplementedRoleServer should be embedded to have forward compatible implementations.
@@ -143,7 +143,7 @@ func (UnimplementedRoleServer) GetRole(context.Context, *SysRole) (*SysRole, err
 func (UnimplementedRoleServer) ListRole(context.Context, *emptypb.Empty) (*ListRoleResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRole not implemented")
 }
-func (UnimplementedRoleServer) RolePermissions(context.Context, *SysRole) (*ListRoleResp, error) {
+func (UnimplementedRoleServer) RolePermissions(context.Context, *SysRole) (*RoleMenu, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RolePermissions not implemented")
 }
 

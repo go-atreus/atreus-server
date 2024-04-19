@@ -1,0 +1,20 @@
+syntax = "proto3";
+package atreus.core;
+option go_package = "github.com/go-atreus/atreus-server/app/admin/api/core";
+
+import "google/api/annotations.proto";
+import "options/gorm.proto";
+import "google/protobuf/empty.proto";
+
+
+message PageInfo {
+  // The service response should contain a string to indicate
+  // the next page of resources.
+  // A null value indicates no more pages.
+  string page_token = 1;
+  // The service may optionally include the total number of resources being paged.
+  int32 size = 2;
+  // The service may optionally include the offset of the next page of resources.
+  // A null value indicates no more pages.
+  int32 offset = 3;
+}

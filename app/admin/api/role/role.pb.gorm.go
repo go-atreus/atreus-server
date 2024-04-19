@@ -3,6 +3,7 @@ package role
 import (
 	context "context"
 	fmt "fmt"
+	menu "github.com/go-atreus/atreus-server/app/admin/api/menu"
 	errors "github.com/infobloxopen/protoc-gen-gorm/errors"
 	field_mask "google.golang.org/genproto/protobuf/field_mask"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -13,7 +14,8 @@ type SysRoleORM struct {
 	Code       string
 	CreateTime string
 	Deleted    string
-	Id         int32 `gorm:"type:integer;primaryKey;autoIncrement"`
+	Id         int32              `gorm:"type:integer;primaryKey;autoIncrement"`
+	Menu       []*menu.SysMenuORM `gorm:"foreignKey:Id;references:Id;many2many:sys_role_menu;joinForeignKey:SysRoleId;joinReferences:SysMenuId"`
 	Name       string
 	Remarks    string
 	ScopeType  int32
@@ -45,6 +47,17 @@ func (m *SysRole) ToORM(ctx context.Context) (SysRoleORM, error) {
 	to.CreateTime = m.CreateTime
 	to.UpdateTime = m.UpdateTime
 	to.ScopeType = m.ScopeType
+	for _, v := range m.Menu {
+		if v != nil {
+			if tempMenu, cErr := v.ToORM(ctx); cErr == nil {
+				to.Menu = append(to.Menu, &tempMenu)
+			} else {
+				return to, cErr
+			}
+		} else {
+			to.Menu = append(to.Menu, nil)
+		}
+	}
 	if posthook, ok := interface{}(m).(SysRoleWithAfterToORM); ok {
 		err = posthook.AfterToORM(ctx, &to)
 	}
@@ -70,6 +83,17 @@ func (m *SysRoleORM) ToPB(ctx context.Context) (SysRole, error) {
 	to.CreateTime = m.CreateTime
 	to.UpdateTime = m.UpdateTime
 	to.ScopeType = m.ScopeType
+	for _, v := range m.Menu {
+		if v != nil {
+			if tempMenu, cErr := v.ToPB(ctx); cErr == nil {
+				to.Menu = append(to.Menu, &tempMenu)
+			} else {
+				return to, cErr
+			}
+		} else {
+			to.Menu = append(to.Menu, nil)
+		}
+	}
 	if posthook, ok := interface{}(m).(SysRoleWithAfterToPB); ok {
 		err = posthook.AfterToPB(ctx, &to)
 	}
@@ -263,6 +287,10 @@ func DefaultStrictUpdateSysRole(ctx context.Context, in *SysRole, db *gorm.DB) (
 			return nil, err
 		}
 	}
+	if err = db.Model(&ormObj).Association("Menu").Replace(ormObj.Menu); err != nil {
+		return nil, err
+	}
+	ormObj.Menu = nil
 	if hook, ok := interface{}(&ormObj).(SysRoleORMWithBeforeStrictUpdateSave); ok {
 		if ormObj, db, err = hook.BeforeStrictUpdateSave(ctx, db, ormObj); err != nil {
 			return nil, err
@@ -412,6 +440,10 @@ func DefaultApplyFieldMaskSysRole(ctx context.Context, patchee *SysRole, patcher
 			patchee.ScopeType = patcher.ScopeType
 			continue
 		}
+		if f == prefix+"Menu" {
+			patchee.Menu = patcher.Menu
+			continue
+		}
 	}
 	if err != nil {
 		return nil, err
@@ -556,7 +588,7 @@ type RoleSysRoleWithAfterListRole interface {
 }
 
 // RolePermissions ...
-func (m *RoleDefaultServer) RolePermissions(ctx context.Context, in *SysRole) (*ListRoleResp, error) {
-	out := &ListRoleResp{}
+func (m *RoleDefaultServer) RolePermissions(ctx context.Context, in *SysRole) (*RoleMenu, error) {
+	out := &RoleMenu{}
 	return out, nil
 }

@@ -6,6 +6,8 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "options/gorm.proto";
 import "api/menu/menu.proto";
+import "api/role/role.proto";
+import "api/core/core.proto";
 
 message userInfoReq {
   string secret = 1;
@@ -35,6 +37,7 @@ message SysUser {
   string access = 13;
   repeated string permissions = 15 [(gorm.field).drop = true];
   repeated string roles = 16 [(gorm.field).drop = true];
+  repeated role.SysRole role = 17 [(gorm.field).many_to_many = {jointable: "sys_user_role"}];
 }
 
 
@@ -67,19 +70,7 @@ message getUserTokenResp{
 message ListUser{
   // Note repeated field and plural name 'results'
   repeated SysUser results = 1;
-  PageInfo page_info = 2;
-}
-
-message PageInfo {
-  // The service response should contain a string to indicate
-  // the next page of resources.
-  // A null value indicates no more pages.
-  string page_token = 1;
-  // The service may optionally include the total number of resources being paged.
-  int32 size = 2;
-  // The service may optionally include the offset of the next page of resources.
-  // A null value indicates no more pages.
-  int32 offset = 3;
+  core.PageInfo page_info = 2;
 }
 
 service User {

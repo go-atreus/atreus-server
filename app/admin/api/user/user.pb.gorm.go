@@ -3,6 +3,7 @@ package user
 import (
 	context "context"
 	fmt "fmt"
+	role "github.com/go-atreus/atreus-server/app/admin/api/role"
 	errors "github.com/infobloxopen/protoc-gen-gorm/errors"
 	field_mask "google.golang.org/genproto/protobuf/field_mask"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -19,6 +20,7 @@ type SysUserORM struct {
 	NotifyCount string
 	ParentId    int32
 	Password    string
+	Role        []*role.SysRoleORM `gorm:"foreignKey:Id;references:Id;many2many:sys_user_role;joinForeignKey:SysUserId;joinReferences:SysRoleId"`
 	Tags        string
 	Title       string
 	UnreadCount string
@@ -53,6 +55,17 @@ func (m *SysUser) ToORM(ctx context.Context) (SysUserORM, error) {
 	to.UnreadCount = m.UnreadCount
 	to.Country = m.Country
 	to.Access = m.Access
+	for _, v := range m.Role {
+		if v != nil {
+			if tempRole, cErr := v.ToORM(ctx); cErr == nil {
+				to.Role = append(to.Role, &tempRole)
+			} else {
+				return to, cErr
+			}
+		} else {
+			to.Role = append(to.Role, nil)
+		}
+	}
 	if posthook, ok := interface{}(m).(SysUserWithAfterToORM); ok {
 		err = posthook.AfterToORM(ctx, &to)
 	}
@@ -82,6 +95,17 @@ func (m *SysUserORM) ToPB(ctx context.Context) (SysUser, error) {
 	to.UnreadCount = m.UnreadCount
 	to.Country = m.Country
 	to.Access = m.Access
+	for _, v := range m.Role {
+		if v != nil {
+			if tempRole, cErr := v.ToPB(ctx); cErr == nil {
+				to.Role = append(to.Role, &tempRole)
+			} else {
+				return to, cErr
+			}
+		} else {
+			to.Role = append(to.Role, nil)
+		}
+	}
 	if posthook, ok := interface{}(m).(SysUserWithAfterToPB); ok {
 		err = posthook.AfterToPB(ctx, &to)
 	}
@@ -275,6 +299,10 @@ func DefaultStrictUpdateSysUser(ctx context.Context, in *SysUser, db *gorm.DB) (
 			return nil, err
 		}
 	}
+	if err = db.Model(&ormObj).Association("Role").Replace(ormObj.Role); err != nil {
+		return nil, err
+	}
+	ormObj.Role = nil
 	if hook, ok := interface{}(&ormObj).(SysUserORMWithBeforeStrictUpdateSave); ok {
 		if ormObj, db, err = hook.BeforeStrictUpdateSave(ctx, db, ormObj); err != nil {
 			return nil, err
@@ -450,6 +478,10 @@ func DefaultApplyFieldMaskSysUser(ctx context.Context, patchee *SysUser, patcher
 		}
 		if f == prefix+"Roles" {
 			patchee.Roles = patcher.Roles
+			continue
+		}
+		if f == prefix+"Role" {
+			patchee.Role = patcher.Role
 			continue
 		}
 	}

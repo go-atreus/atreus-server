@@ -5,7 +5,8 @@ option go_package = "github.com/go-atreus/atreus-server/app/admin/api/role;role"
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "options/gorm.proto";
-import "api/user/user.proto";
+import "api/core/core.proto";
+import "api/menu/menu.proto";
 
 message SysRole {
   option (gorm.opts) = {
@@ -30,12 +31,17 @@ message SysRole {
   string updateTime = 8;
   // 数据权限：1全部，2本人，3本人及子部门，4本部门
   int32 scopeType = 9;
+  repeated menu.SysMenu menu = 10 [(gorm.field).many_to_many = {jointable: "sys_role_menu"}];
 }
 
 message ListRoleResp{
   // Note repeated field and plural name 'results'
   repeated SysRole results = 1;
-  user.PageInfo page_info = 2;
+  core.PageInfo page_info = 2;
+}
+
+message RoleMenu{
+  repeated int32 menus = 1;
 }
 
 service Role {
@@ -73,7 +79,7 @@ service Role {
       body: "*"
     };
   }
-  rpc RolePermissions(SysRole) returns(ListRoleResp){
+  rpc RolePermissions(SysRole) returns(RoleMenu){
     option (google.api.http) = {get: "/system/permission/code/{code}"};
   }
 }
