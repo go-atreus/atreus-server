@@ -22,6 +22,11 @@ type DictService struct {
 	dict.DictDefaultServer
 }
 
+func (m *DictService) Get(ctx context.Context, sysDict *dict.SysDict) (*dict.SysDict, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m *DictService) DictValidHash(context.Context, *emptypb.Empty) (*dict.ValidHashResp, error) {
 	return &dict.ValidHashResp{Results: []string{strconv.Itoa(rand.Int())}}, nil
 }

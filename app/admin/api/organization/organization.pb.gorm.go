@@ -608,16 +608,39 @@ type OrganizationSysOrganizationWithAfterCreateOrganization interface {
 	AfterCreateOrganization(context.Context, *SysOrganization, *gorm.DB) error
 }
 
-// QueryOrganization ...
-func (m *OrganizationDefaultServer) QueryOrganization(ctx context.Context, in *SysOrganization) (*SysOrganization, error) {
-	out := &SysOrganization{}
+// UpdateOrganization ...
+func (m *OrganizationDefaultServer) UpdateOrganization(ctx context.Context, in *SysOrganization) (*SysOrganization, error) {
+	var err error
+	var res *SysOrganization
+	db := m.DB
+	if custom, ok := interface{}(in).(OrganizationSysOrganizationWithBeforeUpdateOrganization); ok {
+		var err error
+		if db, err = custom.BeforeUpdateOrganization(ctx, db); err != nil {
+			return nil, err
+		}
+	}
+	res, err = DefaultStrictUpdateSysOrganization(ctx, in, db)
+	if err != nil {
+		return nil, err
+	}
+	out := res
+	if custom, ok := interface{}(in).(OrganizationSysOrganizationWithAfterUpdateOrganization); ok {
+		var err error
+		if err = custom.AfterUpdateOrganization(ctx, out, db); err != nil {
+			return nil, err
+		}
+	}
 	return out, nil
 }
 
-// UpdateOrganization ...
-func (m *OrganizationDefaultServer) UpdateOrganization(ctx context.Context, in *SysOrganization) (*SysOrganization, error) {
-	out := &SysOrganization{}
-	return out, nil
+// OrganizationSysOrganizationWithBeforeUpdateOrganization called before DefaultUpdateOrganizationSysOrganization in the default UpdateOrganization handler
+type OrganizationSysOrganizationWithBeforeUpdateOrganization interface {
+	BeforeUpdateOrganization(context.Context, *gorm.DB) (*gorm.DB, error)
+}
+
+// OrganizationSysOrganizationWithAfterUpdateOrganization called before DefaultUpdateOrganizationSysOrganization in the default UpdateOrganization handler
+type OrganizationSysOrganizationWithAfterUpdateOrganization interface {
+	AfterUpdateOrganization(context.Context, *SysOrganization, *gorm.DB) error
 }
 
 // DeleteOrganization ...
@@ -657,10 +680,4 @@ type OrganizationSysOrganizationWithBeforeListOrganization interface {
 // OrganizationSysOrganizationWithAfterListOrganization called before DefaultListOrganizationSysOrganization in the default ListOrganization handler
 type OrganizationSysOrganizationWithAfterListOrganization interface {
 	AfterListOrganization(context.Context, *ListSysOrganization, *gorm.DB) error
-}
-
-// OrganizationTree ...
-func (m *OrganizationDefaultServer) OrganizationTree(ctx context.Context, in *SysOrganization) (*ListSysOrganization, error) {
-	out := &ListSysOrganization{}
-	return out, nil
 }

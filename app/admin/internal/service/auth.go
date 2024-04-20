@@ -44,6 +44,7 @@ func (s *AuthServer) UserLogin(ctx context.Context, req *auth.UserLoginReq) (res
 }
 
 func NewAuthServer(config *conf.Auth, userRepo biz.UserRepo) *AuthServer {
+	PwdSecret = config.PwdSecret
 	return &AuthServer{config: config, userRepo: userRepo}
 }
 

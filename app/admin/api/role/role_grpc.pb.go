@@ -20,12 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Role_CreateSysRole_FullMethodName   = "/atreus.role.Role/CreateSysRole"
-	Role_UpdateRole_FullMethodName      = "/atreus.role.Role/UpdateRole"
-	Role_DeleteRole_FullMethodName      = "/atreus.role.Role/DeleteRole"
-	Role_GetRole_FullMethodName         = "/atreus.role.Role/GetRole"
-	Role_ListRole_FullMethodName        = "/atreus.role.Role/ListRole"
-	Role_RolePermissions_FullMethodName = "/atreus.role.Role/RolePermissions"
+	Role_CreateSysRole_FullMethodName      = "/atreus.role.Role/CreateSysRole"
+	Role_UpdateRole_FullMethodName         = "/atreus.role.Role/UpdateRole"
+	Role_DeleteRole_FullMethodName         = "/atreus.role.Role/DeleteRole"
+	Role_GetRole_FullMethodName            = "/atreus.role.Role/GetRole"
+	Role_ListRole_FullMethodName           = "/atreus.role.Role/ListRole"
+	Role_RolePermissions_FullMethodName    = "/atreus.role.Role/RolePermissions"
+	Role_RolePermissionsPut_FullMethodName = "/atreus.role.Role/RolePermissionsPut"
+	Role_RoleSelect_FullMethodName         = "/atreus.role.Role/RoleSelect"
 )
 
 // RoleClient is the client API for Role service.
@@ -43,6 +45,8 @@ type RoleClient interface {
 	// 获取角色列表
 	ListRole(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListRoleResp, error)
 	RolePermissions(ctx context.Context, in *SysRole, opts ...grpc.CallOption) (*RoleMenu, error)
+	RolePermissionsPut(ctx context.Context, in *RolePermReq, opts ...grpc.CallOption) (*RoleMenu, error)
+	RoleSelect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RoleSelectResp, error)
 }
 
 type roleClient struct {
@@ -107,6 +111,24 @@ func (c *roleClient) RolePermissions(ctx context.Context, in *SysRole, opts ...g
 	return out, nil
 }
 
+func (c *roleClient) RolePermissionsPut(ctx context.Context, in *RolePermReq, opts ...grpc.CallOption) (*RoleMenu, error) {
+	out := new(RoleMenu)
+	err := c.cc.Invoke(ctx, Role_RolePermissionsPut_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleClient) RoleSelect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RoleSelectResp, error) {
+	out := new(RoleSelectResp)
+	err := c.cc.Invoke(ctx, Role_RoleSelect_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoleServer is the server API for Role service.
 // All implementations should embed UnimplementedRoleServer
 // for forward compatibility
@@ -122,6 +144,8 @@ type RoleServer interface {
 	// 获取角色列表
 	ListRole(context.Context, *emptypb.Empty) (*ListRoleResp, error)
 	RolePermissions(context.Context, *SysRole) (*RoleMenu, error)
+	RolePermissionsPut(context.Context, *RolePermReq) (*RoleMenu, error)
+	RoleSelect(context.Context, *emptypb.Empty) (*RoleSelectResp, error)
 }
 
 // UnimplementedRoleServer should be embedded to have forward compatible implementations.
@@ -145,6 +169,12 @@ func (UnimplementedRoleServer) ListRole(context.Context, *emptypb.Empty) (*ListR
 }
 func (UnimplementedRoleServer) RolePermissions(context.Context, *SysRole) (*RoleMenu, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RolePermissions not implemented")
+}
+func (UnimplementedRoleServer) RolePermissionsPut(context.Context, *RolePermReq) (*RoleMenu, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RolePermissionsPut not implemented")
+}
+func (UnimplementedRoleServer) RoleSelect(context.Context, *emptypb.Empty) (*RoleSelectResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RoleSelect not implemented")
 }
 
 // UnsafeRoleServer may be embedded to opt out of forward compatibility for this service.
@@ -266,6 +296,42 @@ func _Role_RolePermissions_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Role_RolePermissionsPut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RolePermReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServer).RolePermissionsPut(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Role_RolePermissionsPut_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServer).RolePermissionsPut(ctx, req.(*RolePermReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Role_RoleSelect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServer).RoleSelect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Role_RoleSelect_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServer).RoleSelect(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Role_ServiceDesc is the grpc.ServiceDesc for Role service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -296,6 +362,14 @@ var Role_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RolePermissions",
 			Handler:    _Role_RolePermissions_Handler,
+		},
+		{
+			MethodName: "RolePermissionsPut",
+			Handler:    _Role_RolePermissionsPut_Handler,
+		},
+		{
+			MethodName: "RoleSelect",
+			Handler:    _Role_RoleSelect_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

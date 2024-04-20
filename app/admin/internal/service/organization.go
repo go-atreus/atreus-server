@@ -7,8 +7,15 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 )
 
+var _ org.OrganizationServer = (*OrganizationService)(nil)
+
 type OrganizationService struct {
 	org.OrganizationDefaultServer
+}
+
+func (m *OrganizationService) QueryOrganization(ctx context.Context, organization *org.SysOrganization) (*org.SysOrganization, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func NewOrganization(logger log.Logger, data *data.Data) *OrganizationService {

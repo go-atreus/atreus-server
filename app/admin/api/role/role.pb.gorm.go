@@ -538,19 +538,42 @@ type RoleSysRoleWithAfterCreateSysRole interface {
 
 // UpdateRole ...
 func (m *RoleDefaultServer) UpdateRole(ctx context.Context, in *SysRole) (*SysRole, error) {
-	out := &SysRole{}
+	var err error
+	var res *SysRole
+	db := m.DB
+	if custom, ok := interface{}(in).(RoleSysRoleWithBeforeUpdateRole); ok {
+		var err error
+		if db, err = custom.BeforeUpdateRole(ctx, db); err != nil {
+			return nil, err
+		}
+	}
+	res, err = DefaultStrictUpdateSysRole(ctx, in, db)
+	if err != nil {
+		return nil, err
+	}
+	out := res
+	if custom, ok := interface{}(in).(RoleSysRoleWithAfterUpdateRole); ok {
+		var err error
+		if err = custom.AfterUpdateRole(ctx, out, db); err != nil {
+			return nil, err
+		}
+	}
 	return out, nil
+}
+
+// RoleSysRoleWithBeforeUpdateRole called before DefaultUpdateRoleSysRole in the default UpdateRole handler
+type RoleSysRoleWithBeforeUpdateRole interface {
+	BeforeUpdateRole(context.Context, *gorm.DB) (*gorm.DB, error)
+}
+
+// RoleSysRoleWithAfterUpdateRole called before DefaultUpdateRoleSysRole in the default UpdateRole handler
+type RoleSysRoleWithAfterUpdateRole interface {
+	AfterUpdateRole(context.Context, *SysRole, *gorm.DB) error
 }
 
 // DeleteRole ...
 func (m *RoleDefaultServer) DeleteRole(ctx context.Context, in *SysRole) (*emptypb.Empty, error) {
 	out := &emptypb.Empty{}
-	return out, nil
-}
-
-// GetRole ...
-func (m *RoleDefaultServer) GetRole(ctx context.Context, in *SysRole) (*SysRole, error) {
-	out := &SysRole{}
 	return out, nil
 }
 
@@ -585,10 +608,4 @@ type RoleSysRoleWithBeforeListRole interface {
 // RoleSysRoleWithAfterListRole called before DefaultListRoleSysRole in the default ListRole handler
 type RoleSysRoleWithAfterListRole interface {
 	AfterListRole(context.Context, *ListRoleResp, *gorm.DB) error
-}
-
-// RolePermissions ...
-func (m *RoleDefaultServer) RolePermissions(ctx context.Context, in *SysRole) (*RoleMenu, error) {
-	out := &RoleMenu{}
-	return out, nil
 }

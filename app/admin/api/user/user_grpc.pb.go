@@ -21,8 +21,9 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	User_GetUserInfo_FullMethodName   = "/atreus.user.User/getUserInfo"
-	User_CreateSysUser_FullMethodName = "/atreus.user.User/CreateSysUser"
+	User_SysUserCreate_FullMethodName = "/atreus.user.User/SysUserCreate"
 	User_ListSysUser_FullMethodName   = "/atreus.user.User/ListSysUser"
+	User_GetUserScope_FullMethodName  = "/atreus.user.User/GetUserScope"
 )
 
 // UserClient is the client API for User service.
@@ -31,8 +32,9 @@ const (
 type UserClient interface {
 	// 获取用户信息
 	GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*SysUser, error)
-	CreateSysUser(ctx context.Context, in *SysUser, opts ...grpc.CallOption) (*SysUser, error)
+	SysUserCreate(ctx context.Context, in *UserCreateReq, opts ...grpc.CallOption) (*SysUser, error)
 	ListSysUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListUser, error)
+	GetUserScope(ctx context.Context, in *SysUser, opts ...grpc.CallOption) (*UserScopeResp, error)
 }
 
 type userClient struct {
@@ -52,9 +54,9 @@ func (c *userClient) GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...g
 	return out, nil
 }
 
-func (c *userClient) CreateSysUser(ctx context.Context, in *SysUser, opts ...grpc.CallOption) (*SysUser, error) {
+func (c *userClient) SysUserCreate(ctx context.Context, in *UserCreateReq, opts ...grpc.CallOption) (*SysUser, error) {
 	out := new(SysUser)
-	err := c.cc.Invoke(ctx, User_CreateSysUser_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, User_SysUserCreate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,14 +72,24 @@ func (c *userClient) ListSysUser(ctx context.Context, in *emptypb.Empty, opts ..
 	return out, nil
 }
 
+func (c *userClient) GetUserScope(ctx context.Context, in *SysUser, opts ...grpc.CallOption) (*UserScopeResp, error) {
+	out := new(UserScopeResp)
+	err := c.cc.Invoke(ctx, User_GetUserScope_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations should embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
 	// 获取用户信息
 	GetUserInfo(context.Context, *UserInfoReq) (*SysUser, error)
-	CreateSysUser(context.Context, *SysUser) (*SysUser, error)
+	SysUserCreate(context.Context, *UserCreateReq) (*SysUser, error)
 	ListSysUser(context.Context, *emptypb.Empty) (*ListUser, error)
+	GetUserScope(context.Context, *SysUser) (*UserScopeResp, error)
 }
 
 // UnimplementedUserServer should be embedded to have forward compatible implementations.
@@ -87,11 +99,14 @@ type UnimplementedUserServer struct {
 func (UnimplementedUserServer) GetUserInfo(context.Context, *UserInfoReq) (*SysUser, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
 }
-func (UnimplementedUserServer) CreateSysUser(context.Context, *SysUser) (*SysUser, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateSysUser not implemented")
+func (UnimplementedUserServer) SysUserCreate(context.Context, *UserCreateReq) (*SysUser, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SysUserCreate not implemented")
 }
 func (UnimplementedUserServer) ListSysUser(context.Context, *emptypb.Empty) (*ListUser, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSysUser not implemented")
+}
+func (UnimplementedUserServer) GetUserScope(context.Context, *SysUser) (*UserScopeResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserScope not implemented")
 }
 
 // UnsafeUserServer may be embedded to opt out of forward compatibility for this service.
@@ -123,20 +138,20 @@ func _User_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_CreateSysUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SysUser)
+func _User_SysUserCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserCreateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).CreateSysUser(ctx, in)
+		return srv.(UserServer).SysUserCreate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_CreateSysUser_FullMethodName,
+		FullMethod: User_SysUserCreate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).CreateSysUser(ctx, req.(*SysUser))
+		return srv.(UserServer).SysUserCreate(ctx, req.(*UserCreateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -159,6 +174,24 @@ func _User_ListSysUser_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetUserScope_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SysUser)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserScope(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetUserScope_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserScope(ctx, req.(*SysUser))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -171,12 +204,16 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_GetUserInfo_Handler,
 		},
 		{
-			MethodName: "CreateSysUser",
-			Handler:    _User_CreateSysUser_Handler,
+			MethodName: "SysUserCreate",
+			Handler:    _User_SysUserCreate_Handler,
 		},
 		{
 			MethodName: "ListSysUser",
 			Handler:    _User_ListSysUser_Handler,
+		},
+		{
+			MethodName: "GetUserScope",
+			Handler:    _User_GetUserScope_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

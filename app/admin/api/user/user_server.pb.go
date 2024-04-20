@@ -28,10 +28,14 @@ func (c *UserImpl) GetUserInfo(ctx context.Context, in *UserInfoReq) (*SysUser, 
 	return c.cc.GetUserInfo(ctx, in)
 }
 
-func (c *UserImpl) CreateSysUser(ctx context.Context, in *SysUser) (*SysUser, error) {
-	return c.cc.CreateSysUser(ctx, in)
+func (c *UserImpl) SysUserCreate(ctx context.Context, in *UserCreateReq) (*SysUser, error) {
+	return c.cc.SysUserCreate(ctx, in)
 }
 
 func (c *UserImpl) ListSysUser(ctx context.Context, in *emptypb.Empty) (*ListUser, error) {
 	return c.cc.ListSysUser(ctx, in)
+}
+
+func (c *UserImpl) GetUserScope(ctx context.Context, in *SysUser) (*UserScopeResp, error) {
+	return c.cc.GetUserScope(ctx, in)
 }

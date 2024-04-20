@@ -8,6 +8,7 @@ import "options/gorm.proto";
 import "api/menu/menu.proto";
 import "api/role/role.proto";
 import "api/core/core.proto";
+import "api/organization/organization.proto";
 
 message userInfoReq {
   string secret = 1;
@@ -38,6 +39,7 @@ message SysUser {
   repeated string permissions = 15 [(gorm.field).drop = true];
   repeated string roles = 16 [(gorm.field).drop = true];
   repeated role.SysRole role = 17 [(gorm.field).many_to_many = {jointable: "sys_user_role"}];
+  organization.SysOrganization organization = 18 [(gorm.field).belongs_to = {}];
 }
 
 
@@ -73,6 +75,22 @@ message ListUser{
   core.PageInfo page_info = 2;
 }
 
+message UserScopeResp{
+  int32 userId = 1;
+  string uesrname = 2;
+  repeated string roles = 3;
+}
+
+message UserCreateReq {
+  int32 gender = 1;
+  string username = 2;
+  string nickname = 7;
+  int32 organizationId = 3;
+  string password = 4;
+  repeated string roleCodes = 5;
+  int32 status = 6;
+}
+
 service User {
   option (gorm.server) = {autogen: true};
   //获取用户信息
@@ -80,12 +98,15 @@ service User {
     option (google.api.http) = {post: "/user/info", body: "*"};
   };
 
-  rpc CreateSysUser(SysUser) returns (SysUser){
-    option (google.api.http) = {post: "/user/create", body: "*"};
+  rpc SysUserCreate(UserCreateReq) returns (SysUser){
+    option (google.api.http) = {post: "/system/user", body: "*"};
   };
 
   rpc ListSysUser(google.protobuf.Empty) returns (ListUser) {
     option (google.api.http) = {post: "/system/user/list", body: "*"};
+  }
+  rpc GetUserScope(SysUser) returns (UserScopeResp){
+    option (google.api.http) = {get: "/system/user/scope/{id}"};
   }
 }
 

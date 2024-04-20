@@ -19,6 +19,6 @@ func (m *SysUser) AfterToORM(ctx context.Context, orm *SysUserORM) error {
 }
 
 func (m *SysUserORM) BeforeCreate_(ctx context.Context, db *gorm.DB, orm SysUserORM) (SysUserORM, *gorm.DB, error) {
-	orm.Password = "md5: " + orm.Password
+
 	return orm, db, nil
 }

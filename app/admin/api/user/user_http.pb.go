@@ -20,22 +20,25 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationUserCreateSysUser = "/atreus.user.User/CreateSysUser"
 const OperationUsergetUserInfo = "/atreus.user.User/getUserInfo"
+const OperationUserGetUserScope = "/atreus.user.User/GetUserScope"
 const OperationUserListSysUser = "/atreus.user.User/ListSysUser"
+const OperationUserSysUserCreate = "/atreus.user.User/SysUserCreate"
 
 type UserHTTPServer interface {
-	CreateSysUser(context.Context, *SysUser) (*SysUser, error)
 	// GetUserInfo获取用户信息
 	GetUserInfo(context.Context, *UserInfoReq) (*SysUser, error)
+	GetUserScope(context.Context, *SysUser) (*UserScopeResp, error)
 	ListSysUser(context.Context, *emptypb.Empty) (*ListUser, error)
+	SysUserCreate(context.Context, *UserCreateReq) (*SysUser, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
 	r.POST("/user/info", _User_GetUserInfo0_HTTP_Handler(srv))
-	r.POST("/user/create", _User_CreateSysUser0_HTTP_Handler(srv))
+	r.POST("/system/user", _User_SysUserCreate0_HTTP_Handler(srv))
 	r.POST("/system/user/list", _User_ListSysUser0_HTTP_Handler(srv))
+	r.GET("/system/user/scope/{id}", _User_GetUserScope0_HTTP_Handler(srv))
 }
 
 func _User_GetUserInfo0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -60,18 +63,18 @@ func _User_GetUserInfo0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) 
 	}
 }
 
-func _User_CreateSysUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+func _User_SysUserCreate0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SysUser
+		var in UserCreateReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationUserCreateSysUser)
+		http.SetOperation(ctx, OperationUserSysUserCreate)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateSysUser(ctx, req.(*SysUser))
+			return srv.SysUserCreate(ctx, req.(*UserCreateReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -104,10 +107,33 @@ func _User_ListSysUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) 
 	}
 }
 
+func _User_GetUserScope0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SysUser
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserGetUserScope)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserScope(ctx, req.(*SysUser))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*UserScopeResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type UserHTTPClient interface {
-	CreateSysUser(ctx context.Context, req *SysUser, opts ...http.CallOption) (rsp *SysUser, err error)
 	GetUserInfo(ctx context.Context, req *UserInfoReq, opts ...http.CallOption) (rsp *SysUser, err error)
+	GetUserScope(ctx context.Context, req *SysUser, opts ...http.CallOption) (rsp *UserScopeResp, err error)
 	ListSysUser(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *ListUser, err error)
+	SysUserCreate(ctx context.Context, req *UserCreateReq, opts ...http.CallOption) (rsp *SysUser, err error)
 }
 
 type UserHTTPClientImpl struct {
@@ -116,19 +142,6 @@ type UserHTTPClientImpl struct {
 
 func NewUserHTTPClient(client *http.Client) UserHTTPClient {
 	return &UserHTTPClientImpl{client}
-}
-
-func (c *UserHTTPClientImpl) CreateSysUser(ctx context.Context, in *SysUser, opts ...http.CallOption) (*SysUser, error) {
-	var out SysUser
-	pattern := "/user/create"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationUserCreateSysUser))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
 }
 
 func (c *UserHTTPClientImpl) GetUserInfo(ctx context.Context, in *UserInfoReq, opts ...http.CallOption) (*SysUser, error) {
@@ -144,11 +157,37 @@ func (c *UserHTTPClientImpl) GetUserInfo(ctx context.Context, in *UserInfoReq, o
 	return &out, nil
 }
 
+func (c *UserHTTPClientImpl) GetUserScope(ctx context.Context, in *SysUser, opts ...http.CallOption) (*UserScopeResp, error) {
+	var out UserScopeResp
+	pattern := "/system/user/scope/{id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationUserGetUserScope))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *UserHTTPClientImpl) ListSysUser(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*ListUser, error) {
 	var out ListUser
 	pattern := "/system/user/list"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserListSysUser))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *UserHTTPClientImpl) SysUserCreate(ctx context.Context, in *UserCreateReq, opts ...http.CallOption) (*SysUser, error) {
+	var out SysUser
+	pattern := "/system/user"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserSysUserCreate))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

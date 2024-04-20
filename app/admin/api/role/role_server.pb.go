@@ -47,3 +47,11 @@ func (c *RoleImpl) ListRole(ctx context.Context, in *emptypb.Empty) (*ListRoleRe
 func (c *RoleImpl) RolePermissions(ctx context.Context, in *SysRole) (*RoleMenu, error) {
 	return c.cc.RolePermissions(ctx, in)
 }
+
+func (c *RoleImpl) RolePermissionsPut(ctx context.Context, in *RolePermReq) (*RoleMenu, error) {
+	return c.cc.RolePermissionsPut(ctx, in)
+}
+
+func (c *RoleImpl) RoleSelect(ctx context.Context, in *emptypb.Empty) (*RoleSelectResp, error) {
+	return c.cc.RoleSelect(ctx, in)
+}

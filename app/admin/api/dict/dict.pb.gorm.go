@@ -5,7 +5,6 @@ import (
 	fmt "fmt"
 	errors "github.com/infobloxopen/protoc-gen-gorm/errors"
 	field_mask "google.golang.org/genproto/protobuf/field_mask"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	gorm "gorm.io/gorm"
 )
 
@@ -478,18 +477,6 @@ type DictDefaultServer struct {
 	DB *gorm.DB
 }
 
-// DictData ...
-func (m *DictDefaultServer) DictData(ctx context.Context, in *DictDataReq) (*DictDataResp, error) {
-	out := &DictDataResp{}
-	return out, nil
-}
-
-// DictValidHash ...
-func (m *DictDefaultServer) DictValidHash(ctx context.Context, in *emptypb.Empty) (*ValidHashResp, error) {
-	out := &ValidHashResp{}
-	return out, nil
-}
-
 // Create ...
 func (m *DictDefaultServer) Create(ctx context.Context, in *SysDict) (*SysDict, error) {
 	db := m.DB
@@ -525,18 +512,41 @@ type DictSysDictWithAfterCreate interface {
 
 // Update ...
 func (m *DictDefaultServer) Update(ctx context.Context, in *SysDict) (*SysDict, error) {
-	out := &SysDict{}
+	var err error
+	var res *SysDict
+	db := m.DB
+	if custom, ok := interface{}(in).(DictSysDictWithBeforeUpdate); ok {
+		var err error
+		if db, err = custom.BeforeUpdate(ctx, db); err != nil {
+			return nil, err
+		}
+	}
+	res, err = DefaultStrictUpdateSysDict(ctx, in, db)
+	if err != nil {
+		return nil, err
+	}
+	out := res
+	if custom, ok := interface{}(in).(DictSysDictWithAfterUpdate); ok {
+		var err error
+		if err = custom.AfterUpdate(ctx, out, db); err != nil {
+			return nil, err
+		}
+	}
 	return out, nil
+}
+
+// DictSysDictWithBeforeUpdate called before DefaultUpdateSysDict in the default Update handler
+type DictSysDictWithBeforeUpdate interface {
+	BeforeUpdate(context.Context, *gorm.DB) (*gorm.DB, error)
+}
+
+// DictSysDictWithAfterUpdate called before DefaultUpdateSysDict in the default Update handler
+type DictSysDictWithAfterUpdate interface {
+	AfterUpdate(context.Context, *SysDict, *gorm.DB) error
 }
 
 // Delete ...
 func (m *DictDefaultServer) Delete(ctx context.Context, in *SysDict) (*SysDict, error) {
-	out := &SysDict{}
-	return out, nil
-}
-
-// Get ...
-func (m *DictDefaultServer) Get(ctx context.Context, in *SysDict) (*SysDict, error) {
 	out := &SysDict{}
 	return out, nil
 }
